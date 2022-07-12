@@ -77,7 +77,7 @@ export function App() {
     setLoading(true);
     setInputAmount(inputAmount);
 
-    /* const swap =  */ getPrice(
+    const swap = getPrice(
       inputAmount,
       slippageAmount,
       Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
