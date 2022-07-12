@@ -1,0 +1,21 @@
+1_ Creamos un Nav que incluira la conexion a la wallet, para ello: 
+    -> await new ethers.providers.Web3Provider(window.ethereum) // Cojemos el provider del browser con ethers
+    -> provider.send(eth_requestAccounts, []) // utilizamos el provider para conectar con el wallet del usuario con
+
+FALTA:
+    Solicitar cambio de network al conectar la billetera
+    Advertencia de network equivocada y boton para cambiar automaticamente
+    ¿Oculatr el contenido si no se conecta la wallet?
+
+2_ Creamos la interfaz y la logica para efectuar "swaps" utilizando el uniswap v3 sdk
+    - Creamos un "CurrencyField" del que se coje el "value" y se llama a "getPrice(e.target.value)"
+    - Utilizamos el "@uniswap/smart-order-router" (router) y el "@uniswap/sdk-core" (nos facilita objetos para la logica)
+        para recibir el precio y "data para la transaccion" a traves de uniswap.
+        Esta data sera la que se enviara despues de dar "approve a uniswapRouter" para poder gestionar el swap
+
+
+FALTA: 
+    Añadir Coingecko data API para lsita de tokens de forma automaticamente
+    Poder añadir MAS tokens manualmente (expeculativos)
+    Añadir mas funciones del "@uniswap/sdk" --> SmartContractProgrammer youtube -> singleHop...
+    

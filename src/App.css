@@ -19,8 +19,8 @@ body {
   margin: 0 16px 0 0;
 }
 
-.rightNav {
-  float: right;
+.centerNav {
+  float: center;
 }
 
 .pageButtonBold {
@@ -31,6 +31,7 @@ body {
   background-color: #fff;
   border-radius: 16px;
   display: inline-block;
+  min-width: 360px;
 }
 
 .buttonContainerTop {
@@ -41,16 +42,18 @@ body {
   background-color: rgb(253, 234, 241) !important;
   border-radius: 16px !important;
   border: 1px solid #fff !important;
-  color: rgb(213, 0, 102) !important;
+  color: rgb(209, 13, 32) !important;
+  max-width: 500px;
 }
 
 .connectButtonContainer {
   display: inline-block;
+  margin-top: 100px;
   margin-right: 10px;
 }
 
 .connectButton:hover {
-  border-color: rgb(213, 0, 102) !important;
+  border-color: rgb(213, 0, 11) !important;
 }
 
 .hoverBold:hover {
@@ -87,7 +90,7 @@ body {
 
 .gearContainer {
   float: right;
-  font-size: 22px
+  font-size: 22px;
 }
 
 /******************************************************************************/
@@ -141,10 +144,10 @@ body {
 /* Ratio */
 .ratioContainer {
   text-align: left;
-  margin-left: 10px;
+  margin-top: 40px;
+  margin-left: 20px;
   height: 28px;
 }
-
 
 /******************************************************************************/
 /* Swap Button */
@@ -158,8 +161,8 @@ body {
   font-size: 24px;
   color: #fff;
   border-radius: 20px;
-  background-color: #dd2f81;
-  cursor: pointer
+  background-color: #7c3a92;
+  cursor: pointer;
 }
 
 /******************************************************************************/
@@ -175,7 +178,6 @@ body {
   align-items: center;
   justify-content: center;
   color: rgb(86, 90, 105);
-
 }
 
 .modal-content {

@@ -3,7 +3,7 @@ import PageButton from './../components/PageButton'
 
 const ConnectButton = props => {
   const { isConnected, signerAddress, getSigner, provider } = props
-  const displayAddress = `${signerAddress?.substring(0,10)}...`
+  const displayAddress = `${signerAddress?.substring(0, 6)}...${signerAddress?.slice(-6, signerAddress.split('').length)}`
 
   return (
     <>

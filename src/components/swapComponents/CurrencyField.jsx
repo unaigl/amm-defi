@@ -17,7 +17,7 @@ const CurrencyField = props => {
             className="currencyInputField"
             placeholder="0.0"
             value={props.value}
-            onBlur={e => (props.field === 'input' ? getPrice(e.target.value) : null)}
+            onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
           />
         )}
       </div>
