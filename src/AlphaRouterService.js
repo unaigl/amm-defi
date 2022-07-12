@@ -23,7 +23,7 @@ const name0 = "Wrapped Ether";
 const symbol0 = "WETH";
 const decimals0 = 18;
 // const address0 = "0xc778417e063141139fce010982780140aa0cd5ab";
-const address0 = "0xc778417e063141139fce010982780140aa0cd5ab";
+const address0 = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 // WETH MAIN ETH - 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 // WETH ROPSTEN - 0xc778417e063141139fce010982780140aa0cd5ab
 // PAXG 0x45804880de22913dafe09f4980848ece6ecbaf78
