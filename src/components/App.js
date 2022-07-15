@@ -20,6 +20,9 @@ import {
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Footer from "./Footer/Footer";
 
+// todo: https://wagmi.sh/docs/hooks/useNetwork
+import { useNetwork } from "wagmi";
+
 export function App() {
   const [provider, setProvider] = useState(undefined);
   const [signer, setSigner] = useState(undefined);
@@ -39,6 +42,9 @@ export function App() {
   const [wethAmount, setWethAmount] = useState(undefined);
   const [uniAmount, setUniAmount] = useState(undefined);
   const [isConnectedAccount, setIsConnectedAccount] = useState(true);
+
+  /*  */
+  const { chain, chains } = useNetwork();
 
   // Defining default values: provider, Weth contract and UNI contract
   useEffect(() => {

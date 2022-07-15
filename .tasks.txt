@@ -34,6 +34,10 @@ Cambiar la data del dropdown cuando cambia la chain
 Vincular a esos dropdown la data de cada token seleccionado
 Coger alguna data de tokens de ropsten a mano, y meterle en la misma estrcutura que las otros json
 
+ES FACIL
+En App importamos las 4 funciones del Router, ahi se gestiona todo
+Solo se le pasa el metodo "getPrice" del Router al "CurrencyField" para que pueda recoger el input
+
 /*****
 REPASAR TODO, JS, REACT, REACT-WEB3, THREE, WEB API, AJAX...
 ESTUDIAR MAS UNISWAP V3
