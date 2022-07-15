@@ -3,3 +3,5 @@ node_modules
 
 .tasks
 src/components/provisional
+
+.tasks.txt

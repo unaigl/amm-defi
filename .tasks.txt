@@ -23,3 +23,18 @@ FALTA:
     
 -DETECt
 COMO DETECTAR INFO DE rainbow kit
+Es posible usar la uv3 de forma legal?
+Arreglar boton de swap
+
+NECESITO
+modificar las variables de AplhaRouter y ver si funciona correctamente al mover de sitio la logica dentro del mismo JS
+enviar desde otros componenetes esos valores como parametros de las funciones - obtener esos parametros desde WAGMI y los inputs(dropdown)
+Cambiar la data del dropdown cuando cambia la chain
+    2 json, uno con los symbol y otro con toda la info
+Vincular a esos dropdown la data de cada token seleccionado
+Coger alguna data de tokens de ropsten a mano, y meterle en la misma estrcutura que las otros json
+
+/*****
+REPASAR TODO, JS, REACT, REACT-WEB3, THREE, WEB API, AJAX...
+ESTUDIAR MAS UNISWAP V3
+*****/

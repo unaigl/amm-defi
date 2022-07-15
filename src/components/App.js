@@ -120,7 +120,7 @@ export function App() {
 
       <div className="appBody">
         <p>Choose a BlockChain to operate using uniswap V3 router </p>
-        <p>Swap tokens in real Chains</p>
+        <p>Swap tokens in real Chains. Only for advanced users</p>
         <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
         <br />
         <br />
