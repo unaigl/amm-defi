@@ -2,10 +2,11 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { GearFill } from "react-bootstrap-icons";
+import axios from "axios";
 
 // import ConnectButton from "./components/ConnectButton";
-import ConfigModal from "./components/swapComponents/ConfigModal";
-import CurrencyField from "./components/swapComponents/CurrencyField";
+import ConfigModal from "./swapComponents/ConfigModal";
+import CurrencyField from "./swapComponents/CurrencyField";
 
 import BeatLoader from "react-spinners/BeatLoader";
 import {
@@ -13,10 +14,11 @@ import {
   getUniContract,
   getPrice,
   runSwap,
-} from "./AlphaRouterService";
+} from "../AlphaRouterService";
 
 // import CustomConnectButton from "./CustomConnectButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Footer from "./Footer/Footer";
 
 export function App() {
   const [provider, setProvider] = useState(undefined);
@@ -43,6 +45,15 @@ export function App() {
     const onLoad = async () => {
       const provider = await new ethers.providers.Web3Provider(window.ethereum);
       setProvider(provider);
+
+      try {
+        const res = await axios.get(
+          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false"
+        );
+        console.log(res.data);
+      } catch (error) {
+        console.log("aaaaaaaaaaaaaaaaa", error);
+      }
 
       const wethContract = getWethContract();
       setWethContract(wethContract);
@@ -103,9 +114,10 @@ export function App() {
         <div className="centertNav">
           <div
             className="connectButtonContainer"
-            // style={{ backgroundColor: "gray" }}
+            // ConnectButton is a built-in component of Rainbow - Instead of showing DEX panel after address connect
+            // we will show it 4 seconds later after clicking connect button
+            // @dev: in near future, we'll custom "ConnectButton" to return a boolean
             onClick={() => {
-              console.log("ssssssssssssssssss");
               setTimeout(() => {
                 setIsConnectedAccount(true);
               }, 4000);
@@ -121,6 +133,11 @@ export function App() {
 
       {isConnectedAccount ? (
         <div className="appBody">
+          <p>Choose a BlockChain to operate using uniswap V3 router </p>
+          <p>Swap tokens in real Chains or tesnets</p>
+          <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
+          <br />
+          <br />
           <div className="swapContainer">
             <div className="swapHeader">
               <span className="swapText">Swap</span>
@@ -181,6 +198,7 @@ export function App() {
       ) : (
         <h1 className="appBody"></h1>
       )}
+      <Footer />
     </div>
   );
 }
