@@ -38,7 +38,7 @@ export function App() {
   const [uniContract, setUniContract] = useState(undefined);
   const [wethAmount, setWethAmount] = useState(undefined);
   const [uniAmount, setUniAmount] = useState(undefined);
-  const [isConnectedAccount, setIsConnectedAccount] = useState(false);
+  const [isConnectedAccount, setIsConnectedAccount] = useState(true);
 
   // Defining default values: provider, Weth contract and UNI contract
   useEffect(() => {
@@ -114,14 +114,14 @@ export function App() {
         <div className="centertNav">
           <div
             className="connectButtonContainer"
-            // ConnectButton is a built-in component of Rainbow - Instead of showing DEX panel after address connect
-            // we will show it 4 seconds later after clicking connect button
-            // @dev: in near future, we'll custom "ConnectButton" to return a boolean
-            onClick={() => {
-              setTimeout(() => {
-                setIsConnectedAccount(true);
-              }, 4000);
-            }}
+            // // ConnectButton is a built-in component of Rainbow - Instead of showing DEX panel after address connect
+            // // we will show it 4 seconds later after clicking connect button
+            // // @dev: in near future, we'll custom "ConnectButton" to return a boolean
+            // onClick={() => {
+            //   setTimeout(() => {
+            //     setIsConnectedAccount(true);
+            //   }, 4000);
+            // }}
           >
             {/* <CustomConnectButton
               setIsConnectedAccount={setIsConnectedAccount}
@@ -131,74 +131,68 @@ export function App() {
         </div>
       </div>
 
-      {isConnectedAccount ? (
-        <div className="appBody">
-          <p>Choose a BlockChain to operate using uniswap V3 router </p>
-          <p>Swap tokens in real Chains or tesnets</p>
-          <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
-          <br />
-          <br />
-          <div className="swapContainer">
-            <div className="swapHeader">
-              <span className="swapText">Swap</span>
-              <span
-                className="gearContainer"
-                onClick={() => setShowModal(true)}
+      <div className="appBody">
+        <p>Choose a BlockChain to operate using uniswap V3 router </p>
+        <p>Swap tokens in real Chains or tesnets</p>
+        <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
+        <br />
+        <br />
+        <div className="swapContainer">
+          <div className="swapHeader">
+            <span className="swapText">Swap</span>
+            <span className="gearContainer" onClick={() => setShowModal(true)}>
+              <GearFill />
+            </span>
+            {showModal && (
+              <ConfigModal
+                onClose={() => setShowModal(false)}
+                setDeadlineMinutes={setDeadlineMinutes}
+                deadlineMinutes={deadlineMinutes}
+                setSlippageAmount={setSlippageAmount}
+                slippageAmount={slippageAmount}
+              />
+            )}
+          </div>
+
+          <div className="swapBody">
+            <CurrencyField
+              field="input"
+              tokenName="***WETH"
+              getSwapPrice={getSwapPrice}
+              signer={signer}
+              balance={wethAmount}
+            />
+            <CurrencyField
+              field="output"
+              tokenName="***UNI"
+              value={outputAmount}
+              signer={signer}
+              balance={uniAmount}
+              spinner={BeatLoader}
+              loading={loading}
+            />
+          </div>
+
+          <div className="ratioContainer">
+            {ratio && <>{`1 UNI = ${ratio} WETH`}</>}
+          </div>
+
+          <div className="swapButtonContainer">
+            {isConnected() ? (
+              <div
+                onClick={() => runSwap(transaction, signer)}
+                className="swapButton"
               >
-                <GearFill />
-              </span>
-              {showModal && (
-                <ConfigModal
-                  onClose={() => setShowModal(false)}
-                  setDeadlineMinutes={setDeadlineMinutes}
-                  deadlineMinutes={deadlineMinutes}
-                  setSlippageAmount={setSlippageAmount}
-                  slippageAmount={slippageAmount}
-                />
-              )}
-            </div>
-
-            <div className="swapBody">
-              <CurrencyField
-                field="input"
-                tokenName="***WETH"
-                getSwapPrice={getSwapPrice}
-                signer={signer}
-                balance={wethAmount}
-              />
-              <CurrencyField
-                field="output"
-                tokenName="***UNI"
-                value={outputAmount}
-                signer={signer}
-                balance={uniAmount}
-                spinner={BeatLoader}
-                loading={loading}
-              />
-            </div>
-
-            <div className="ratioContainer">
-              {ratio && <>{`1 UNI = ${ratio} WETH`}</>}
-            </div>
-
-            <div className="swapButtonContainer">
-              {isConnected() ? (
-                <div
-                  onClick={() => runSwap(transaction, signer)}
-                  className="swapButton"
-                >
-                  Swap
-                </div>
-              ) : (
-                <div className="swapButton">Swap</div>
-              )}
-            </div>
+                Swap
+              </div>
+            ) : (
+              <div className="swapButton">Swap</div>
+            )}
           </div>
         </div>
-      ) : (
-        <h1 className="appBody"></h1>
-      )}
-      <Footer />
+        <Footer />
+      </div>
+      {/*  */}
     </div>
   );
 }
