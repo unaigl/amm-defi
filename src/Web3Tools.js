@@ -12,7 +12,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { App } from "./components/App";
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum],
+  [chain.mainnet, chain.polygon, chain.ropsten],
   [
     infuraProvider({ infuraId: process.env.REACT_APP_INFURA_ID }),
     publicProvider(),

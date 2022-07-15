@@ -14,7 +14,7 @@ import {
   getUniContract,
   getPrice,
   runSwap,
-} from "../AlphaRouterService";
+} from "./AlphaRouterService";
 
 // import CustomConnectButton from "./CustomConnectButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -64,12 +64,12 @@ export function App() {
     onLoad();
   }, []);
 
-  // Setting signer address
-  const getSigner = async (provider) => {
-    provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    setSigner(signer);
-  };
+  // // Setting signer address
+  // const getSigner = async (provider) => {
+  //   provider.send("eth_requestAccounts", []);
+  //   const signer = provider.getSigner();
+  //   setSigner(signer);
+  // };
   const isConnected = () => signer !== undefined;
   // Getting user's balance in both tokens
   const getWalletAddress = () => {
@@ -112,20 +112,7 @@ export function App() {
     <div className="App">
       <div className="appNav">
         <div className="centertNav">
-          <div
-            className="connectButtonContainer"
-            // // ConnectButton is a built-in component of Rainbow - Instead of showing DEX panel after address connect
-            // // we will show it 4 seconds later after clicking connect button
-            // // @dev: in near future, we'll custom "ConnectButton" to return a boolean
-            // onClick={() => {
-            //   setTimeout(() => {
-            //     setIsConnectedAccount(true);
-            //   }, 4000);
-            // }}
-          >
-            {/* <CustomConnectButton
-              setIsConnectedAccount={setIsConnectedAccount}
-            /> */}
+          <div className="connectButtonContainer">
             <ConnectButton />
           </div>
         </div>
@@ -133,7 +120,7 @@ export function App() {
 
       <div className="appBody">
         <p>Choose a BlockChain to operate using uniswap V3 router </p>
-        <p>Swap tokens in real Chains or tesnets</p>
+        <p>Swap tokens in real Chains</p>
         <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
         <br />
         <br />

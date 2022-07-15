@@ -19,3 +19,7 @@ FALTA:
     Poder añadir MAS tokens manualmente (expeculativos)
     Añadir mas funciones del "@uniswap/sdk" --> SmartContractProgrammer youtube -> singleHop...
     
+    
+    
+-DETECt
+COMO DETECTAR INFO DE rainbow kit

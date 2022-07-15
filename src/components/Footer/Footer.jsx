@@ -13,6 +13,11 @@ function Footer() {
     // let year = date.getFullYear();
     return (
         <Container fluid className="footer">
+            <Row >
+                <p>Chains able to trade: Ethereum, Polygon, Ropsten... contact me to add more chains </p>
+                <p>You can trade between first 450 tokens (NO coins) by market cap </p>
+                <p><a href='https://github.com/unaigl/scraping' >These data is fetched using web scraping technique </a> </p>
+            </Row>
             <Row className="footer-display">
                 <h2 className="footer-display">
                     <a

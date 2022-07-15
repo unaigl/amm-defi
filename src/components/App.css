@@ -48,7 +48,7 @@ body {
 
 .connectButtonContainer {
   display: inline-block;
-  margin-top: 60px;
+  margin-top: 30px;
   margin-right: 10px;
 }
 
@@ -64,7 +64,7 @@ body {
 /* Swap Container */
 .appBody {
   height: 100%;
-  padding-top: 80px;
+  padding-top: 20px;
 }
 
 .swapContainer {
@@ -118,7 +118,7 @@ body {
 .currencyInputField {
   font-size: 28px;
   display: inline-block;
-  width: 100%;
+  width: 130%;
   border: none;
   background-color: rgb(217, 236, 242);
 }

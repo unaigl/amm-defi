@@ -22,6 +22,7 @@ const CurrencyField = props => {
         )}
       </div>
       <div className="col-md-6 tokenContainer">
+        // todo: dropdown
         <span className="tokenName">{props.tokenName}</span>
         <div className="balanceContainer">
           <span className="balanceAmount">Balance: {props.balance?.toFixed(3)}</span>
