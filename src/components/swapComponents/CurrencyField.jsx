@@ -28,7 +28,7 @@ const CurrencyField = props => {
         <span className="tokenName">{props.tokenName}</span> */}
         <Form.Select
           aria-label="Default select example"
-          onChange={(e) => { props.tokenSelectionChanged(e.target.value) }}
+          onChange={(e) => { props.tokenSelectionChanged(props.field, e.target.value) }}
 
         >
           {props.symbols && props.symbols.map((symbol, index) => {

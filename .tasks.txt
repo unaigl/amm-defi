@@ -42,3 +42,7 @@ Solo se le pasa el metodo "getPrice" del Router al "CurrencyField" para que pued
 REPASAR TODO, JS, REACT, REACT-WEB3, THREE, WEB API, AJAX...
 ESTUDIAR MAS UNISWAP V3
 *****/
+
+
+SI se selecciona un token, no se puede seleccionar el mismo en el otro
+Revisar todo

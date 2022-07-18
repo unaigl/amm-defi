@@ -20,7 +20,7 @@ import { useNetwork } from "wagmi";
 import { swapChain, tokenDataInChainX } from "../data/getData";
 
 export function App() {
-  const [provider, setProvider] = useState(undefined);
+  // const [provider, setProvider] = useState(undefined);
   const [signer, setSigner] = useState(undefined);
   const [signerAddress, setSignerAddress] = useState(undefined);
 
@@ -44,13 +44,17 @@ export function App() {
   /*  */
   const { chain } = useNetwork();
 
-  var token0Symbol = window.document.getElementById("input-token").value;
-  var token1Symbol = window.document.getElementById("output-token").value;
+  var token0Symbol = "USDT";
+  var token1Symbol = "USDT";
 
-  const gettingTokenAddresses = async () => {
-    const provider = await new ethers.providers.Web3Provider(window.ethereum);
-    setProvider(provider);
+  // const provider = await new ethers.providers.Web3Provider(window.ethereum);
+  // setProvider(provider);
+  const gettingTokenAddresses = async () => {};
 
+  // Defining default values: provider, Weth contract and UNI contract
+  useEffect(() => {
+    // Only when wallet is conected
+    if (!chain) return;
     const { token0, token1 } = gettingTokens();
 
     const token0Contract = getContract(token0.address);
@@ -58,11 +62,6 @@ export function App() {
 
     const token1Contract = getContract(token1.address);
     settoken1Contract(token1Contract);
-  };
-
-  // Defining default values: provider, Weth contract and UNI contract
-  useEffect(() => {
-    gettingTokenAddresses();
   }, [token0Symbol, token1Symbol]);
 
   useEffect(() => {
@@ -105,9 +104,12 @@ export function App() {
     getWalletAddress();
   }
 
-  const tokenSelectionChanged = (_value) => {
-    token0Symbol = window.document.getElementById("input-token")._value;
-    token1Symbol = window.document.getElementById("output-token")._value;
+  const tokenSelectionChanged = (_field, _value) => {
+    if (_field === "input") {
+      token0Symbol = _value;
+    } else {
+      token1Symbol = _value;
+    }
   };
 
   const gettingTokens = () => {
