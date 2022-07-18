@@ -16,12 +16,12 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Footer from "./Footer/Footer";
 
 // todo: https://wagmi.sh/docs/hooks/useNetwork
-import { useNetwork } from "wagmi";
+import { useNetwork, useSigner } from "wagmi";
 import { swapChain, tokenDataInChainX } from "../data/getData";
 
 export function App() {
   // const [provider, setProvider] = useState(undefined);
-  const [signer, setSigner] = useState(undefined);
+  // const [signer, setSigner] = useState(undefined);
   const [signerAddress, setSignerAddress] = useState(undefined);
 
   const [slippageAmount, setSlippageAmount] = useState(2);
@@ -48,6 +48,7 @@ export function App() {
 
   /*  */
   const { chain } = useNetwork();
+  const { signer } = useSigner();
 
   // todo: default tokens
 
@@ -63,11 +64,11 @@ export function App() {
 
     console.log({ token0, token1 });
 
-    const token0Contract = getContract(token0.token.address[0]);
-    settoken0Contract(token0Contract);
+    // const token0Contract = getContract(token0.token.address[0]);
+    // settoken0Contract(token0Contract);
 
-    const token1Contract = getContract(token1.token.address[0]);
-    settoken1Contract(token1Contract);
+    // const token1Contract = getContract(token1.token.address[0]);
+    // settoken1Contract(token1Contract);
     // avoidSymbolin0();
   }, [token0Symbol, token1Symbol]);
 
@@ -117,8 +118,8 @@ export function App() {
     });
   };
 
-  getWalletAddress();
   if (signer !== undefined) {
+    getWalletAddress();
   }
 
   const tokenSelectionChanged = (_field, _value) => {
