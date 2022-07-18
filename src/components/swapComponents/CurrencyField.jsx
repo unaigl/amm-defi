@@ -31,13 +31,19 @@ const CurrencyField = props => {
           onChange={(e) => { props.tokenSelectionChanged(props.field, e.target.value) }}
 
         >
-          {props.symbols && props.symbols.map((symbol, index) => {
+          {props.symbols && <option >{props.currentSymbol}</option>}
+          {props.symbols ? props.symbols.map((symbol, index) => {
             String.toString(index)
             return (
-              <option value={index} key={index}>{symbol}</option>
+              <option value={symbol} key={index}>{symbol}</option>
 
             )
-          })}
+          })
+            :
+            <>
+              <option value={'none'} >{'--'}</option>
+            </>
+          }
 
         </Form.Select>
         <div className="balanceContainer">

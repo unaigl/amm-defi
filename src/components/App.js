@@ -38,14 +38,18 @@ export function App() {
   const [token0Amount, settoken0Amount] = useState(undefined);
   const [token1Amount, settoken1Amount] = useState(undefined);
   const [isConnectedAccount, setIsConnectedAccount] = useState(true);
-  const [currentSymbols, setCurrentSymbols] = useState();
+  const [currentSymbolsList, setcurrentSymbolsList] = useState();
+  const [avoidingConflictSymbolsList, setavoidingConflictSymbolsList] =
+    useState();
   const [tokenAddresses, setTokenAddresses] = useState();
+
+  const [token0Symbol, setToken0Symbol] = useState("USDT");
+  const [token1Symbol, setToken1Symbol] = useState("USDT");
 
   /*  */
   const { chain } = useNetwork();
 
-  var token0Symbol = "USDT";
-  var token1Symbol = "USDT";
+  // todo: default tokens
 
   // const provider = await new ethers.providers.Web3Provider(window.ethereum);
   // setProvider(provider);
@@ -54,26 +58,38 @@ export function App() {
   // Defining default values: provider, Weth contract and UNI contract
   useEffect(() => {
     // Only when wallet is conected
-    if (!chain) return;
+    if (!chain || !token0Symbol || !token1Symbol) return;
     const { token0, token1 } = gettingTokens();
 
-    const token0Contract = getContract(token0.address);
+    console.log({ token0, token1 });
+
+    const token0Contract = getContract(token0.token.address[0]);
     settoken0Contract(token0Contract);
 
-    const token1Contract = getContract(token1.address);
+    const token1Contract = getContract(token1.token.address[0]);
     settoken1Contract(token1Contract);
+    // avoidSymbolin0();
   }, [token0Symbol, token1Symbol]);
 
   useEffect(() => {
-    if (chain) {
-      let chainIds = [1, 137, 3];
-      // setCurrentChain(chain);
-      let _chainId = parseInt(chain.id);
-      for (let i = 0; i < chainIds.length; i++) {
-        if (_chainId === chainIds[i]) {
-          const { _tokenAddresses, _tokenSymbols } = swapChain(_chainId);
-          setTokenAddresses(_tokenAddresses);
-          setCurrentSymbols(_tokenSymbols);
+    if (!chain) return;
+
+    let chainIds = [1, 137, 3];
+    // setCurrentChain(chain);
+    let _chainId = parseInt(chain.id);
+    for (let i = 0; i < chainIds.length; i++) {
+      if (_chainId === chainIds[i]) {
+        const { _tokenAddresses, _tokenSymbols } = swapChain(_chainId);
+        setTokenAddresses(_tokenAddresses);
+        setcurrentSymbolsList(_tokenSymbols);
+        setavoidingConflictSymbolsList(_tokenSymbols);
+
+        if (_chainId === 3) {
+          setToken0Symbol("WETH");
+          setToken1Symbol("USD");
+        } else {
+          setToken0Symbol("USDT");
+          setToken1Symbol("UNI");
         }
       }
     }
@@ -85,36 +101,57 @@ export function App() {
   //   const signer = provider.getSigner();
   //   setSigner(signer);
   // };
-  const isConnected = () => signer !== undefined;
+  const isConnected = () => chain !== undefined;
   // Getting user's balance in both tokens
   const getWalletAddress = () => {
     signer.getAddress().then((address) => {
       setSignerAddress(address);
-
+      console.log("token0Contract", token0Contract);
       token0Contract.balanceOf(address).then((res) => {
         settoken0Amount(Number(ethers.utils.formatEther(res)));
       });
       token1Contract.balanceOf(address).then((res) => {
         settoken1Amount(Number(ethers.utils.formatEther(res)));
+        console.log("BAAAAALANCE", token1Amount);
       });
     });
   };
 
+  getWalletAddress();
   if (signer !== undefined) {
-    getWalletAddress();
   }
 
   const tokenSelectionChanged = (_field, _value) => {
     if (_field === "input") {
-      token0Symbol = _value;
+      setToken0Symbol(_value);
+      if (token0Symbol === token1Symbol) {
+        avoidSymbolin1();
+      }
     } else {
-      token1Symbol = _value;
+      setToken1Symbol(_value);
+      if (token0Symbol === token1Symbol) {
+        console.log("saaaaaaaaaaame");
+        avoidSymbolin0();
+      }
     }
   };
 
+  // funcion para crear un nuevo array sin el symbolo ya seleccionado en el input o output
+  const avoidSymbolin1 = () => {
+    let newArr = currentSymbolsList.filter((item) => item !== token0Symbol);
+    setavoidingConflictSymbolsList(newArr);
+  };
+  const avoidSymbolin0 = () => {
+    let newArr = avoidingConflictSymbolsList.filter(
+      (item) => item !== token1Symbol
+    );
+    setcurrentSymbolsList(newArr);
+  };
+
   const gettingTokens = () => {
-    const token0 = tokenDataInChainX(token0Symbol, chain);
-    const token1 = tokenDataInChainX(token1Symbol, chain);
+    const token0 = tokenDataInChainX(token0Symbol, chain.id);
+    const token1 = tokenDataInChainX(token1Symbol, chain.id);
+
     return { token0, token1 };
   };
 
@@ -126,8 +163,8 @@ export function App() {
     const { token0, token1 } = gettingTokens();
     getPrice(
       chain,
-      token0,
-      token1,
+      token0.token,
+      token1.token,
       inputAmount,
       slippageAmount,
       Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
@@ -181,8 +218,9 @@ export function App() {
               getSwapPrice={getSwapPrice}
               signer={signer}
               balance={token0Amount}
-              symbols={currentSymbols}
+              symbols={currentSymbolsList}
               tokenSelectionChanged={tokenSelectionChanged}
+              currentSymbol={token0Symbol}
               // chain={chain}
               // selectedToken={selectedToken}
             />
@@ -194,8 +232,9 @@ export function App() {
               balance={token1Amount}
               spinner={BeatLoader}
               loading={loading}
-              symbols={currentSymbols}
+              symbols={avoidingConflictSymbolsList}
               tokenSelectionChanged={tokenSelectionChanged}
+              currentSymbol={token1Symbol}
               // chain={chain}
             />
           </div>
@@ -213,7 +252,7 @@ export function App() {
                 Swap
               </div>
             ) : (
-              <div className="swapButton">Connect wallet</div>
+              <div className="swapButton">--</div>
             )}
           </div>
         </div>
