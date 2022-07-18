@@ -9,12 +9,7 @@ import ConfigModal from "./swapComponents/ConfigModal";
 import CurrencyField from "./swapComponents/CurrencyField";
 
 import BeatLoader from "react-spinners/BeatLoader";
-import {
-  getWethContract,
-  getUniContract,
-  getPrice,
-  runSwap,
-} from "./AlphaRouterService";
+import { getContract, getPrice, runSwap } from "./AlphaRouterServiceAdvanced";
 
 // import CustomConnectButton from "./CustomConnectButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -22,6 +17,7 @@ import Footer from "./Footer/Footer";
 
 // todo: https://wagmi.sh/docs/hooks/useNetwork
 import { useNetwork } from "wagmi";
+import { swapChain, tokenDataInChainX } from "../data/getData";
 
 export function App() {
   const [provider, setProvider] = useState(undefined);
@@ -37,38 +33,52 @@ export function App() {
   const [transaction, setTransaction] = useState(undefined);
   const [loading, setLoading] = useState(undefined);
   const [ratio, setRatio] = useState(undefined);
-  const [wethContract, setWethContract] = useState(undefined);
-  const [uniContract, setUniContract] = useState(undefined);
-  const [wethAmount, setWethAmount] = useState(undefined);
-  const [uniAmount, setUniAmount] = useState(undefined);
+  const [token0Contract, settoken0Contract] = useState(undefined);
+  const [token1Contract, settoken1Contract] = useState(undefined);
+  const [token0Amount, settoken0Amount] = useState(undefined);
+  const [token1Amount, settoken1Amount] = useState(undefined);
   const [isConnectedAccount, setIsConnectedAccount] = useState(true);
+  const [currentSymbols, setCurrentSymbols] = useState();
+  const [tokenAddresses, setTokenAddresses] = useState();
 
   /*  */
-  const { chain, chains } = useNetwork();
+  const { chain } = useNetwork();
+
+  var token0Symbol = window.document.getElementById("input-token").value;
+  var token1Symbol = window.document.getElementById("output-token").value;
+
+  const gettingTokenAddresses = async () => {
+    const provider = await new ethers.providers.Web3Provider(window.ethereum);
+    setProvider(provider);
+
+    const { token0, token1 } = gettingTokens();
+
+    const token0Contract = getContract(token0.address);
+    settoken0Contract(token0Contract);
+
+    const token1Contract = getContract(token1.address);
+    settoken1Contract(token1Contract);
+  };
 
   // Defining default values: provider, Weth contract and UNI contract
   useEffect(() => {
-    const onLoad = async () => {
-      const provider = await new ethers.providers.Web3Provider(window.ethereum);
-      setProvider(provider);
+    gettingTokenAddresses();
+  }, [token0Symbol, token1Symbol]);
 
-      try {
-        const res = await axios.get(
-          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false"
-        );
-        console.log(res.data);
-      } catch (error) {
-        console.log("aaaaaaaaaaaaaaaaa", error);
+  useEffect(() => {
+    if (chain) {
+      let chainIds = [1, 137, 3];
+      // setCurrentChain(chain);
+      let _chainId = parseInt(chain.id);
+      for (let i = 0; i < chainIds.length; i++) {
+        if (_chainId === chainIds[i]) {
+          const { _tokenAddresses, _tokenSymbols } = swapChain(_chainId);
+          setTokenAddresses(_tokenAddresses);
+          setCurrentSymbols(_tokenSymbols);
+        }
       }
-
-      const wethContract = getWethContract();
-      setWethContract(wethContract);
-
-      const uniContract = getUniContract();
-      setUniContract(uniContract);
-    };
-    onLoad();
-  }, []);
+    }
+  }, [chain]);
 
   // // Setting signer address
   // const getSigner = async (provider) => {
@@ -82,11 +92,11 @@ export function App() {
     signer.getAddress().then((address) => {
       setSignerAddress(address);
 
-      wethContract.balanceOf(address).then((res) => {
-        setWethAmount(Number(ethers.utils.formatEther(res)));
+      token0Contract.balanceOf(address).then((res) => {
+        settoken0Amount(Number(ethers.utils.formatEther(res)));
       });
-      uniContract.balanceOf(address).then((res) => {
-        setUniAmount(Number(ethers.utils.formatEther(res)));
+      token1Contract.balanceOf(address).then((res) => {
+        settoken1Amount(Number(ethers.utils.formatEther(res)));
       });
     });
   };
@@ -95,12 +105,27 @@ export function App() {
     getWalletAddress();
   }
 
+  const tokenSelectionChanged = (_value) => {
+    token0Symbol = window.document.getElementById("input-token")._value;
+    token1Symbol = window.document.getElementById("output-token")._value;
+  };
+
+  const gettingTokens = () => {
+    const token0 = tokenDataInChainX(token0Symbol, chain);
+    const token1 = tokenDataInChainX(token1Symbol, chain);
+    return { token0, token1 };
+  };
+
   // Calculating swap ratio
   const getSwapPrice = (inputAmount) => {
     setLoading(true);
     setInputAmount(inputAmount);
 
+    const { token0, token1 } = gettingTokens();
     getPrice(
+      chain,
+      token0,
+      token1,
       inputAmount,
       slippageAmount,
       Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
@@ -119,7 +144,7 @@ export function App() {
       <div className="appNav">
         <div className="centertNav">
           <div className="connectButtonContainer">
-            <ConnectButton />
+            <ConnectButton id="connect-button" />
           </div>
         </div>
       </div>
@@ -150,19 +175,26 @@ export function App() {
           <div className="swapBody">
             <CurrencyField
               field="input"
-              tokenName="***WETH"
+              id="input-token"
               getSwapPrice={getSwapPrice}
               signer={signer}
-              balance={wethAmount}
+              balance={token0Amount}
+              symbols={currentSymbols}
+              tokenSelectionChanged={tokenSelectionChanged}
+              // chain={chain}
+              // selectedToken={selectedToken}
             />
             <CurrencyField
               field="output"
-              tokenName="***UNI"
+              id="output-token"
               value={outputAmount}
               signer={signer}
-              balance={uniAmount}
+              balance={token1Amount}
               spinner={BeatLoader}
               loading={loading}
+              symbols={currentSymbols}
+              tokenSelectionChanged={tokenSelectionChanged}
+              // chain={chain}
             />
           </div>
 
@@ -179,7 +211,7 @@ export function App() {
                 Swap
               </div>
             ) : (
-              <div className="swapButton">Swap</div>
+              <div className="swapButton">Connect wallet</div>
             )}
           </div>
         </div>

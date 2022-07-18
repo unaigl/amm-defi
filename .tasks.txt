@@ -21,10 +21,10 @@ FALTA:
     
     
     
--DETECt
-COMO DETECTAR INFO DE rainbow kit
-Es posible usar la uv3 de forma legal?
-Arreglar boton de swap
+
+COMO DETECTAR INFO DE rainbow kit --> WAGMI
+Es posible usar la uv3 de forma legal? --> SI NO SE GANA DINERO SI
+Arreglar boton de swap 
 
 NECESITO
 modificar las variables de AplhaRouter y ver si funciona correctamente al mover de sitio la logica dentro del mismo JS

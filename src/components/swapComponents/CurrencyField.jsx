@@ -28,12 +28,17 @@ const CurrencyField = props => {
         <span className="tokenName">{props.tokenName}</span> */}
         <Form.Select
           aria-label="Default select example"
-          onChange={(e) => { console.log(e.target.value) }}
+          onChange={(e) => { props.tokenSelectionChanged(e.target.value) }}
+
         >
-          <option>WETH</option>
-          <option value="1">USD</option>
-          <option value="2">DAI</option>
-          <option value="3">UNI</option>
+          {props.symbols && props.symbols.map((symbol, index) => {
+            String.toString(index)
+            return (
+              <option value={index} key={index}>{symbol}</option>
+
+            )
+          })}
+
         </Form.Select>
         <div className="balanceContainer">
           <span
