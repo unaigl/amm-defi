@@ -45,4 +45,6 @@ ESTUDIAR MAS UNISWAP V3
 
 
 SI se selecciona un token, no se puede seleccionar el mismo en el otro
-Revisar todo
+
+Arreglar el signer - el address, para coger el balanceOf
+

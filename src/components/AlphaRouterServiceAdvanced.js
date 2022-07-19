@@ -10,20 +10,28 @@ const JSBI = require("jsbi");
 const ERC20ABI = require("../data/abi.json");
 
 const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"; // Route02 0xE592427A0AEce92De3Edee1F18E0157C05861564
-const REACT_APP_INFURA_URL_TESTNET = process.env.REACT_APP_INFURA_URL_TESTNET;
 
-const web3Provider = new ethers.providers.JsonRpcProvider(
-  REACT_APP_INFURA_URL_TESTNET
-);
+// // const REACT_APP_INFURA_URL_POLYGON = process.env.REACT_APP_INFURA_URL_POLYGON;
+// // const getWeb3Provider = () => {
+// //   for (let i = 0; i < array.length; i++) {
+// //     return new ethers.providers.JsonRpcProvider(REACT_APP_INFURA_URL_POLYGON);
+// //   }
+// // };
 
 // todo
-let chainId = 1;
+// // let router;
+// // let chainId = 1;
+// Initialized and declared in "getChainI_Router_token0_token1" to use in "runSwap" function
 let token0Contract;
-// let router;
-const getChainI_Router_token0_token1 = (_chain, _token0, _token1) => {
-  chainId = _chain;
+const getChainI_Router_token0_token1 = (
+  _chain,
+  _token0,
+  _token1,
+  _web3Provider
+) => {
+  let chainId = _chain;
   //Router
-  let _router = new AlphaRouter({ chainId: chainId, provider: web3Provider });
+  let _router = new AlphaRouter({ chainId: chainId, provider: _web3Provider });
   // Declaring token0 contract to use in runSwap function
   token0Contract = _token0.address;
   // token0
@@ -45,8 +53,8 @@ const getChainI_Router_token0_token1 = (_chain, _token0, _token1) => {
   return { _router, token0, token1 };
 };
 
-export const getContract = (_address) =>
-  new ethers.Contract(_address, ERC20ABI, web3Provider);
+// export const getContract = (_address) =>
+//   new ethers.Contract(_address, ERC20ABI, web3Provider);
 // // todo
 // const name0 = "Wrapped Ether";
 // const symbol0 = "WETH";
@@ -75,12 +83,16 @@ export const getPrice = async (
   inputAmount,
   slippageAmount,
   deadline,
-  walletAddress
+  walletAddress,
+  _web3Provider
 ) => {
+  if (_token0.symbol === _token1.symbol)
+    return alert("Is not possible to swap the same token");
   const { router, token0, token1 } = getChainI_Router_token0_token1(
     _chain,
     _token0,
-    _token1
+    _token1,
+    _web3Provider
   );
   const percentSlippage = new Percent(slippageAmount, 100);
   const wei = ethers.utils.parseUnits(inputAmount.toString(), token0.decimals);
@@ -115,9 +127,10 @@ export const getPrice = async (
   return [transaction, quoteAmountOut, ratio];
 };
 
-export const runSwap = async (transaction, signer) => {
+// Giving approval to spend token0 to uniswap v3 router address in order to execute swap
+export const runSwap = async (transaction, signer, web3Provider) => {
   const approvalAmount = ethers.utils.parseUnits("10", 18).toString();
-  const contract0 = getContract(token0Contract);
+  const contract0 = new ethers.Contract(token0Contract, ERC20ABI, web3Provider);
   await contract0
     .connect(signer)
     .approve(V3_SWAP_ROUTER_ADDRESS, approvalAmount);

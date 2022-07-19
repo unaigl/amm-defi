@@ -24,18 +24,15 @@ const CurrencyField = props => {
         )}
       </div>
       <div className="col-md-6 tokenContainer">
-        {/* // todo: dropdown
-        <span className="tokenName">{props.tokenName}</span> */}
         <Form.Select
           aria-label="Default select example"
           onChange={(e) => { props.tokenSelectionChanged(props.field, e.target.value) }}
-
         >
-          {props.symbols && <option >{props.currentSymbol}</option>}
+          {props.symbols && <option value={props.currentSymbol} >{props.currentSymbol}</option>} {/* Agregar diferenciador */}
           {props.symbols ? props.symbols.map((symbol, index) => {
             String.toString(index)
             return (
-              <option value={symbol} key={index}>{symbol}</option>
+              <option name={symbol} value={symbol} key={index}>{symbol}</option>
 
             )
           })

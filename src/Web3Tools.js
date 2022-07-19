@@ -7,6 +7,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
 import { App } from "./components/App";
@@ -15,6 +16,8 @@ const { chains, provider } = configureChains(
   [chain.mainnet, chain.polygon, chain.ropsten],
   [
     infuraProvider({ infuraId: process.env.REACT_APP_INFURA_ID }),
+    alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID }),
+    alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID_POLYGON }),
     publicProvider(),
   ]
 );

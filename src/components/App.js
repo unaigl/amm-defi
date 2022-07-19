@@ -9,18 +9,18 @@ import ConfigModal from "./swapComponents/ConfigModal";
 import CurrencyField from "./swapComponents/CurrencyField";
 
 import BeatLoader from "react-spinners/BeatLoader";
-import { getContract, getPrice, runSwap } from "./AlphaRouterServiceAdvanced";
+import { getPrice, runSwap } from "./AlphaRouterServiceAdvanced";
 
 // import CustomConnectButton from "./CustomConnectButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Footer from "./Footer/Footer";
 
 // todo: https://wagmi.sh/docs/hooks/useNetwork
-import { useNetwork, useSigner } from "wagmi";
+import { useNetwork, useSigner, useProvider, useAccount } from "wagmi";
 import { swapChain, tokenDataInChainX } from "../data/getData";
+import ERC20ABI from "../data/abi.json";
 
 export function App() {
-  // const [provider, setProvider] = useState(undefined);
   // const [signer, setSigner] = useState(undefined);
   const [signerAddress, setSignerAddress] = useState(undefined);
 
@@ -39,52 +39,103 @@ export function App() {
   const [token1Amount, settoken1Amount] = useState(undefined);
   const [isConnectedAccount, setIsConnectedAccount] = useState(true);
   const [currentSymbolsList, setcurrentSymbolsList] = useState();
-  const [avoidingConflictSymbolsList, setavoidingConflictSymbolsList] =
-    useState();
-  const [tokenAddresses, setTokenAddresses] = useState();
+  // const [avoidingConflictSymbolsList, setavoidingConflictSymbolsList] =
+  //   useState();
+  // const [tokenAddresses, setTokenAddresses] = useState();
 
   const [token0Symbol, setToken0Symbol] = useState("USDT");
-  const [token1Symbol, setToken1Symbol] = useState("USDT");
+  const [token1Symbol, setToken1Symbol] = useState("UNI");
 
-  /*  */
+  const [token0, setToken0] = useState(undefined);
+  const [token1, setToken1] = useState(undefined);
+
+  /*  WAGMI hooks*/
   const { chain } = useNetwork();
-  const { signer } = useSigner();
+  const { data: signer, isError, isLoading } = useSigner();
+  const web3Provider = useProvider();
+  const { address, isConnecting, isDisconnected } = useAccount();
 
-  // todo: default tokens
+  const isConnected = () => chain !== undefined;
 
-  // const provider = await new ethers.providers.Web3Provider(window.ethereum);
-  // setProvider(provider);
-  const gettingTokenAddresses = async () => {};
+  /* 
+    Setting default tokens contract and user balance
+    &
+    updating tokens contract and user balance when new token is seleceted in the select form 
+    function "tokenSelectionChanged" will trigger useEffect
+  */
 
-  // Defining default values: provider, Weth contract and UNI contract
   useEffect(() => {
-    // Only when wallet is conected
-    if (!chain || !token0Symbol || !token1Symbol) return;
-    const { token0, token1 } = gettingTokens();
+    if (chain) {
+      const gettingTokens = () => {
+        const token0 = tokenDataInChainX(token0Symbol, chain.id);
+        const token1 = tokenDataInChainX(token1Symbol, chain.id);
+        setToken0(token0);
+        setToken1(token1);
+        return { token0, token1 };
+      };
 
-    console.log({ token0, token1 });
+      // Setting token Contract
+      const getContract = (_address) =>
+        new ethers.Contract(_address, ERC20ABI, web3Provider);
 
-    // const token0Contract = getContract(token0.token.address[0]);
-    // settoken0Contract(token0Contract);
+      // Setting token contract to get balanceOf when wallet connects
+      const setTokenContract = () => {
+        // Getting selected token object and defining contracts (to show balance)
+        const { token0, token1 } = gettingTokens();
 
-    // const token1Contract = getContract(token1.token.address[0]);
-    // settoken1Contract(token1Contract);
-    // avoidSymbolin0();
-  }, [token0Symbol, token1Symbol]);
+        console.log({ token0, token1 });
 
+        const token0Contract = getContract(token0.token.address[0]);
+        settoken0Contract(token0Contract);
+        console.log(token0Contract);
+
+        const token1Contract = getContract(token1.token.address[0]);
+        settoken1Contract(token1Contract);
+
+        console.log("token0Contract", token0Contract);
+        console.log("token1Contract", token1Contract);
+      };
+
+      // Getting user's balance in both tokens
+      const getBalanceOf = async () => {
+        try {
+          console.log("COOOOOOOOOOOOONTRACT");
+          await token0Contract.balanceOf(address).then((res) => {
+            settoken0Amount(Number(ethers.utils.formatEther(res)));
+            console.log("BAAAAALANCE", token0Amount);
+          });
+          await token1Contract.balanceOf(address).then((res) => {
+            settoken1Amount(Number(ethers.utils.formatEther(res)));
+            console.log("BAAAAALANCE", token1Amount);
+          });
+        } catch (error) {
+          console.log(error);
+          // getWalletAddress();
+          settoken0Amount(0);
+          settoken1Amount(0);
+        }
+      };
+      setTokenContract();
+      getBalanceOf();
+    }
+  }, [chain, token0Symbol, token1Symbol, web3Provider]);
+  /*
+    Getting tokens symbols DATA in first render 
+    &
+    updating tokens symbols when chain changes
+  */
   useEffect(() => {
     if (!chain) return;
-
     let chainIds = [1, 137, 3];
-    // setCurrentChain(chain);
     let _chainId = parseInt(chain.id);
     for (let i = 0; i < chainIds.length; i++) {
       if (_chainId === chainIds[i]) {
-        const { _tokenAddresses, _tokenSymbols } = swapChain(_chainId);
-        setTokenAddresses(_tokenAddresses);
+        const _tokenSymbols = swapChain(_chainId);
+        // setTokenAddresses(_tokenAddresses);
         setcurrentSymbolsList(_tokenSymbols);
-        setavoidingConflictSymbolsList(_tokenSymbols);
-
+        // // Setting different token select in the form
+        // setavoidingConflictSymbolsList(_tokenSymbols);
+        // Setting default token for each chain
         if (_chainId === 3) {
           setToken0Symbol("WETH");
           setToken1Symbol("USD");
@@ -96,72 +147,45 @@ export function App() {
     }
   }, [chain]);
 
-  // // Setting signer address
-  // const getSigner = async (provider) => {
-  //   provider.send("eth_requestAccounts", []);
-  //   const signer = provider.getSigner();
-  //   setSigner(signer);
-  // };
-  const isConnected = () => chain !== undefined;
-  // Getting user's balance in both tokens
-  const getWalletAddress = () => {
-    signer.getAddress().then((address) => {
-      setSignerAddress(address);
-      console.log("token0Contract", token0Contract);
-      token0Contract.balanceOf(address).then((res) => {
-        settoken0Amount(Number(ethers.utils.formatEther(res)));
-      });
-      token1Contract.balanceOf(address).then((res) => {
-        settoken1Amount(Number(ethers.utils.formatEther(res)));
-        console.log("BAAAAALANCE", token1Amount);
-      });
-    });
-  };
-
-  if (signer !== undefined) {
-    getWalletAddress();
-  }
+  /* 
+    Setting token when a new token is seleceted in the select form
+     todo Setting token LIST when a new token is seleceted in the select form
+  */
 
   const tokenSelectionChanged = (_field, _value) => {
     if (_field === "input") {
       setToken0Symbol(_value);
-      if (token0Symbol === token1Symbol) {
-        avoidSymbolin1();
-      }
     } else {
       setToken1Symbol(_value);
-      if (token0Symbol === token1Symbol) {
-        console.log("saaaaaaaaaaame");
-        avoidSymbolin0();
-      }
     }
   };
+  /* 
+    todo: Trying to delete selected token from the list of 2nd select form
+    if (_field === "input") {
+      console.log("NOT WORKING", typeof token0Symbol, token0Symbol);
+      setToken0Symbol(_value);
+      console.log("NOT WORKING", typeof token0Symbol, token0Symbol);
+      let newArr = currentSymbolsList.filter((item) => item !== token0Symbol);
+      setavoidingConflictSymbolsList(newArr);
+    } else {
+      setToken1Symbol(_value);
+      let newArr = avoidingConflictSymbolsList.filter(
+        (item) => item !== token1Symbol
+      );
+      setcurrentSymbolsList(newArr);
+    }
+ */
 
-  // funcion para crear un nuevo array sin el symbolo ya seleccionado en el input o output
-  const avoidSymbolin1 = () => {
-    let newArr = currentSymbolsList.filter((item) => item !== token0Symbol);
-    setavoidingConflictSymbolsList(newArr);
-  };
-  const avoidSymbolin0 = () => {
-    let newArr = avoidingConflictSymbolsList.filter(
-      (item) => item !== token1Symbol
-    );
-    setcurrentSymbolsList(newArr);
-  };
-
-  const gettingTokens = () => {
-    const token0 = tokenDataInChainX(token0Symbol, chain.id);
-    const token1 = tokenDataInChainX(token1Symbol, chain.id);
-
-    return { token0, token1 };
-  };
-
-  // Calculating swap ratio
+  /* 
+     Defining transaction objects in "getSwapPrice"
+     Clicking in interface button -> call "runSwap" function (declared in AlphaRouterService)
+  */
+  // swap ratio
   const getSwapPrice = (inputAmount) => {
     setLoading(true);
     setInputAmount(inputAmount);
 
-    const { token0, token1 } = gettingTokens();
+    // const { token0, token1 } = gettingTokens();
     getPrice(
       chain,
       token0.token,
@@ -169,7 +193,8 @@ export function App() {
       inputAmount,
       slippageAmount,
       Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
-      signerAddress
+      signer, // todo: estaba como signerAddress. "signer.address" ?? es lo mismo? o "address" ?
+      web3Provider
     ).then((data) => {
       setTransaction(data[0]);
       setOutputAmount(data[1]);
@@ -178,7 +203,7 @@ export function App() {
     });
   };
 
-  // connectButton + swapContainer
+  // Interface - connectButton + swapContainer + footer
   return (
     <div className="App">
       <div className="appNav">
@@ -193,6 +218,7 @@ export function App() {
         <p>Choose a BlockChain to operate using uniswap V3 router </p>
         <p>Swap tokens in real Chains. Only for advanced users</p>
         <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
+        <p>Uniswap aplicara las comisiones de cada pool</p>
         <br />
         <br />
         <div className="swapContainer">
@@ -222,8 +248,6 @@ export function App() {
               symbols={currentSymbolsList}
               tokenSelectionChanged={tokenSelectionChanged}
               currentSymbol={token0Symbol}
-              // chain={chain}
-              // selectedToken={selectedToken}
             />
             <CurrencyField
               field="output"
@@ -233,10 +257,9 @@ export function App() {
               balance={token1Amount}
               spinner={BeatLoader}
               loading={loading}
-              symbols={avoidingConflictSymbolsList}
+              symbols={currentSymbolsList}
               tokenSelectionChanged={tokenSelectionChanged}
               currentSymbol={token1Symbol}
-              // chain={chain}
             />
           </div>
 
@@ -247,7 +270,7 @@ export function App() {
           <div className="swapButtonContainer">
             {isConnected() ? (
               <div
-                onClick={() => runSwap(transaction, signer)}
+                onClick={() => runSwap(transaction, signer, web3Provider)}
                 className="swapButton"
               >
                 Swap
