@@ -48,3 +48,10 @@ SI se selecciona un token, no se puede seleccionar el mismo en el otro
 
 Arreglar el signer - el address, para coger el balanceOf
 
+///////////////////
+
+- como ejectuar ciertas funciones solo por 1era vez cuando se renderice la app
+
+useEffect - setteamos default values para los tokens para el 1er render
++
+useEffect - 

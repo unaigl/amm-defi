@@ -7,6 +7,23 @@ const CurrencyField = props => {
     props.getSwapPrice(value)
   }
 
+  // first time onChange is triggered is not getting correctly tokens balance
+  if (props.chain && !props.balance) {
+    const trigg = (() => {
+
+      setTimeout(() => {
+        console.log('RECURSIVE')
+        props.trigger();
+        // if (!props.balance) recursive()
+      }, 1000);
+    })()
+    // recursive()
+    const a = trigg
+    console.log(a)
+    if (props.balance) return
+  }
+
+
   return (
     <div className="row currencyInput">
       <div className="col-md-6 numberContainer">
@@ -26,9 +43,14 @@ const CurrencyField = props => {
       <div className="col-md-6 tokenContainer">
         <Form.Select
           aria-label="Default select example"
-          onChange={(e) => { props.tokenSelectionChanged(props.field, e.target.value) }}
+          onChange={(e) => {
+            console.log('EVENTOO', e)
+            props.tokenSelectionChanged(props.field, e.target.value)
+          }}
+          id="form-select"
         >
-          {props.symbols && <option value={props.currentSymbol} >{props.currentSymbol}</option>} {/* Agregar diferenciador */}
+          {/* Agregar diferenciador, color */}
+          {/* {props.symbols && <option value={props.currentSymbol} >{props.currentSymbol}</option>}  */}
           {props.symbols ? props.symbols.map((symbol, index) => {
             String.toString(index)
             return (
