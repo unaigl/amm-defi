@@ -118,7 +118,7 @@ body {
 .currencyInputField {
   font-size: 28px;
   display: inline-block;
-  width: 130%;
+  width: 80%;
   border: none;
   background-color: rgb(217, 236, 242);
 }

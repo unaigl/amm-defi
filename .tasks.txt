@@ -55,3 +55,14 @@ Arreglar el signer - el address, para coger el balanceOf
 useEffect - setteamos default values para los tokens para el 1er render
 +
 useEffect - 
+...
+
+
+///////////////////
+NO CARGA ADECUADAMENTE - las funciones async estan bien manejadas
+1_era vez que -> no saca los tokens
+2_da seleccion de token -> no saca los contratos
+3_era -> no saca el balanceOf
+
+revisar si con un search se soluciona el problema del form-select. 
+Ya que sino, para modificar el array hay que hacer : indexOf() y splice() + agregar el eliminado anteriormente

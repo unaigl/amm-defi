@@ -17,7 +17,8 @@ const { chains, provider } = configureChains(
   [
     infuraProvider({ infuraId: process.env.REACT_APP_INFURA_ID }),
     alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID }),
-    alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID_POLYGON }),
+    //todo cambiar
+    // alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID_POLYGON }),
     publicProvider(),
   ]
 );
