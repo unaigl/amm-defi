@@ -90,13 +90,11 @@ const CurrencyField = props => {
         </div>
         <Form.Select
           aria-label="Default select example"
-          onChange={(e) => {
-            console.log('EVENTOO', e.target.value)
-            props.tokenSelectionChanged(props.field, () => { return e.target.value })
-          }}
-          id={props.id}
+          onChange={(e) => props.handleChange(e, props.field)}
+          // id={props.id}
+          id={`${props.elementId}`}
         >
-
+          {props.symbols && <option value={props.currentSymbol} >{props.currentSymbol}</option>}
           {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => {
             String.toString(index)
             return (

@@ -46,8 +46,11 @@ export function App() {
   const [token0Symbol, setToken0Symbol] = useState(undefined);
   const [token1Symbol, setToken1Symbol] = useState(undefined);
   // no se actualiza con los de arriba... creamos otro par
-  const [token0Symbol2, setToken0Symbol2] = useState(undefined);
-  const [token1Symbol2, setToken1Symbol2] = useState(undefined);
+  const [tokenSymbol, setTokenSymbol] = useState({
+    token0Symbol: undefined,
+    token1Symbol: undefined,
+  });
+  // const [token1Symbol2, setToken1Symbol2] = useState(undefined);
 
   const [token0, setToken0] = useState(undefined);
   const [token1, setToken1] = useState(undefined);
@@ -68,59 +71,6 @@ export function App() {
     updating tokens contract and user balance when new token is seleceted in the select form 
     function "tokenSelectionChanged" will trigger useEffect
   */
-
-  // // const memoizedCallback = useCallback(() => {
-  // //   d(address, chain);
-  // // }, [address, chain]);
-
-  // // const d = (address, chain) => {
-  // //   const a = () => {
-  // //     console.log("aaaaaaaaaaaaaaa");
-  // //     setToken1(address);
-  // //   };
-  // //   const b = () => {
-  // //     console.log("aaaaaaaaaaaaaaa");
-  // //     setToken1(chain);
-  // //   };
-  // //   a();
-  // //   b();
-  // // };
-
-  useEffect(() => {
-    // // Setting default token when app is loaded
-    // setToken0Symbol("USDT");
-    // setToken1Symbol("UNI");
-    // // Setting default token when app is loaded
-    // setToken0(tokenDataInChainX("USDT", 1));
-    // setToken1(tokenDataInChainX("UNI", 1));
-    // //
-    // const _tokenSymbols = swapChain(1);
-    // // setTokenSymbols(_tokenAddresses);
-    // setcurrentSymbolsList(_tokenSymbols);
-    //
-    // var element = document.getElementById("form-select");
-    // element.addEventListener("change", () => console.log("change"));
-    // var event = new Event("change", { bubbles: true });
-    // element.dispatchEvent(event);
-  }, []);
-
-  // useEffect(() => {
-  //   if (chain) {
-
-  //   }
-  // }, [chain, token0Symbol, token1Symbol]);
-
-  //   chain, // Objects
-  //   token0Symbol,
-  //   token1Symbol,
-  //   address,
-  //   token0Contract,// Objects
-  //   token1Contract,// Objects
-  //   web3Provider,// Objects
-  //   token0,// Objects
-  //   token1,// Objects
-  //   token0Amount,
-  //   token1Amount,
 
   /*
     Getting tokens symbols DATA in first render 
@@ -143,30 +93,36 @@ export function App() {
           } else {
             setToken0Symbol("USDT");
             setToken1Symbol("UNI");
-            console.log("seetted");
           }
-          // trigger();
         }
       }
-      console.log("CHAAAAAAAAAAAAAAIN");
     }
   }, [chain]);
 
-  // // triggering onchange event from code to get tkens balanceOf
-  // const trigger = () => {
-  //   // Triggering once chain is created or modifyed. Goal is to define balance of tokens setted by default
-  //   // Create an element -> suscribe -> trigger onChange event
-  //   var element = document.getElementById("form-select");
-  //   element.addEventListener("change", () => console.log("change"));
-  //   var event = new Event("change", { bubbles: true });
-  //   element.dispatchEvent(event);
-  //   // // Remove listner
-  //   // setTimeout(() => {
-  //   //   if (token0Amount && token1Amount) {
-  //   //     element.removeEventListener();
-  //   //   }
-  //   // }, 2000);
-  // };
+  // triggering onchange event from code to get tkens balanceOf
+  const trigger = (_field) => {
+    // Triggering once chain is created or modifyed. Goal is to define balance of tokens setted by default
+    // Create an element -> suscribe -> trigger onChange event
+    // 0
+    if (!chain) return;
+    var element = document.getElementById(`form-select-${_field}`);
+    element.addEventListener("change", function () {});
+    var event = new Event("change", { bubbles: true });
+    element.dispatchEvent(event);
+  };
+  // todo tratando de arreglarlo creando aqui el metodo y pasandoselo al child - sigue habiendo un delay al actualizar el estado actual
+  // https://stackoverflow.com/questions/58497548/react-usestate-hook-variable-value-dont-update-on-input-onchange-event
+  const handleChange = (e, _field) => {
+    console.log("EVENTOO", e.target.value);
+    // tokenSelectionChanged(() => {
+    //   return e.target.value;
+    // });
+    if (_field === "input") setToken0Symbol(e.target.value);
+    else setToken1Symbol(e.target.value);
+
+    setTokenContract();
+    getBalanceOf();
+  };
 
   /* 
     Setting token when a new token is seleceted in the select form
@@ -176,11 +132,11 @@ export function App() {
   const gettingTokens = () => {
     // if wallet is not connected (chain does not exist), take current token 0 and token1 values - In initial rendering we've setted default tokens
     if (chain) {
-      console.log("LASST", token0Symbol2, token0Symbol2);
-      const _token0 = tokenDataInChainX(token0Symbol2, chain.id);
-      const _token1 = tokenDataInChainX(token1Symbol2, chain.id);
-      setToken0(_token0);
-      setToken1(_token1);
+      console.log("TOKENS MUST TO BE:", token0Symbol, token1Symbol);
+      const _token0 = tokenDataInChainX(token0Symbol, chain.id);
+      const _token1 = tokenDataInChainX(token1Symbol, chain.id);
+      setToken0({ ..._token0 });
+      setToken1({ ..._token1 });
     }
   };
 
@@ -188,8 +144,6 @@ export function App() {
   const getContract = (_address) => {
     return new ethers.Contract(_address, ERC20ABI, web3Provider);
   };
-
-  // todo comprobaciones
 
   // Setting token contract to get balanceOf when wallet connects
   const setTokenContract = () => {
@@ -203,18 +157,16 @@ export function App() {
       const token1Contract = getContract(token1.token.address[0]);
       settoken1Contract(token1Contract);
 
-      console.log("token1Contract", token1Contract);
       console.log({ a: token0.token.symbol, b: token1.token.symbol });
     } catch (error) {
       console.log("--token0 and token1 are not defined yet--", error);
     }
 
-    console.log("token0Contract", token0Contract);
+    // console.log("token0Contract", token0Contract);
   };
 
   // Getting user's balance in both tokens
   const getBalanceOf = async () => {
-    // // const address = "0x85732427df4874db73600685072d54b99e72c9ca";
     try {
       console.log("CALL USING INFURA");
       // // TODO NO SE SI LA LOGICA siuge creando LOOPS, o si me han cerrado infura ethers.Contract
@@ -252,28 +204,37 @@ export function App() {
       // // settoken1Amount(1);
     } catch (error) {
       console.log("--Alchemy service is not ready yet, try again--", error);
-      // getWalletAddress();
-      // settoken0Amount(0);
-      // settoken1Amount(0);
-      // // console.log("token0Amount", token0Amount);
-      // // console.log("token1Amount", token1Amount);
-      // setTokenContract();
     }
   };
 
   const tokenSelectionChanged = (_field, _value) => {
     // TODO separar solicitud de token 0 o 1
-    if (_field === "input") {
-      let value = _value();
-      setToken0Symbol(value);
-      setToken0Symbol2(value);
-      // token0SymbolVar = value;
-    } else {
-      let value = _value();
-      setToken1Symbol(value);
-      setToken1Symbol2(value);
-      // token1SymbolVar = value;
-    }
+    // let value = _value();
+    // if (_field === "input") {
+    // setToken0Symbol(value);
+    // // setToken0Symbol2(value);
+    // // token0SymbolVar = value;
+    // if (token0Symbol !== value) {
+    //   // setToken0Symbol(0);
+
+    //   trigger(_field);
+    // }
+    setTokenSymbol({ token0Symbol: _value, token1Symbol });
+    // setTokenSymbol(...tokenSymbol, (tokenSymbol.token0Symbol = value));
+    console.log("POOOOOR FIIIIIN", tokenSymbol);
+    // } else {
+    // setToken1Symbol(value);
+    // // setToken1Symbol2(value);
+    // // token1SymbolVar = value;
+    // if (token1Symbol !== value) {
+    //   // setToken1Symbol(0);
+
+    //   trigger(_field);
+    // }
+    // setTokenSymbol({ token0Symbol, token1Symbol: value });
+
+    // console.log("POOOOOR FIIIIIN", tokenSymbol);
+    // }
     setTokenContract();
     getBalanceOf();
   };
@@ -366,7 +327,8 @@ export function App() {
               symbols={currentSymbolsList}
               tokenSelectionChanged={tokenSelectionChanged}
               currentSymbol={token0Symbol}
-              elementId={"form-select-input"}
+              elementId="form-select-input"
+              handleChange={handleChange}
               // trigger={trigger}
               // chain={chain}
               // isResponse={isResponse}
@@ -383,7 +345,8 @@ export function App() {
               symbols={currentSymbolsList}
               tokenSelectionChanged={tokenSelectionChanged}
               currentSymbol={token1Symbol}
-              elementId={"form-select-output"}
+              elementId="form-select-output"
+              handleChange={handleChange}
               // trigger={trigger}
               // chain={chain}
               // isResponse={isResponse}
