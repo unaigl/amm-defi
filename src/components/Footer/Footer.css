@@ -1,6 +1,7 @@
 .footer {
   bottom: 0 !important;
   padding-top: 100px !important;
+  margin-bottom: 20px;
 }
 .footer-display {
   display: inline;

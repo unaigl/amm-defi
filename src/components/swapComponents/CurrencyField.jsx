@@ -11,24 +11,6 @@ const CurrencyField = props => {
     props.getSwapPrice(value)
   }
 
-  // // first time onChange is triggered is not getting correctly tokens balance
-  // if (props.isResponse) {
-  //   if (props.chain && !props.balance) {
-  //     const trigg = (() => {
-
-  //       setTimeout(() => {
-  //         console.log('RECURSIVE')
-  //         props.trigger();
-  //         // if (!props.balance) recursive()
-  //       }, 1000);
-  //     })()
-  //     // recursive()
-  //     const a = trigg
-  //     console.log(a)
-  //     if (props.balance) return
-  //   }
-  //   props.setIsResponse(false)
-  // }
 
   const showBalance = () => {
     if (props.balance === undefined) return ''
@@ -74,7 +56,7 @@ const CurrencyField = props => {
             style={{ marginBottom: "10px" }}
             // Cuando se selecciona desde el input, tambien se settean los tokens para hacer swap directamente, sin tener que usar el form-select
             onBlur={e => {
-              props.tokenSelectionChanged(props.field, () => {
+              props.setTokenContract(() => {
 
                 const filteredSymbols = filteredCoins(e.target.value.toLowerCase())
 
@@ -90,11 +72,16 @@ const CurrencyField = props => {
         </div>
         <Form.Select
           aria-label="Default select example"
-          onChange={(e) => props.handleChange(e, props.field)}
+          onChange={(e) => {
+            props.setTokenContract(
+              document.getElementsByClassName("form-select")[0].value,
+              document.getElementsByClassName("form-select")[1].value
+            )
+          }}
           // id={props.id}
-          id={`${props.elementId}`}
+          className="form-select"
         >
-          {props.symbols && <option value={props.currentSymbol} >{props.currentSymbol}</option>}
+          {props.symbols && <option style={{ background: "blue", color: "white" }} value={props.currentSymbol} >{props.currentSymbol}</option>}
           {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => {
             String.toString(index)
             return (
@@ -117,7 +104,6 @@ const CurrencyField = props => {
               position: "relative",
             }}>
             {showBalance()}
-            {/* {props.balance ? `Balance : ${props.balance?.toFixed(3)}` : ''} */}
           </span>
         </div>
       </div>

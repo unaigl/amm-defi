@@ -70,12 +70,12 @@ body {
 .swapContainer {
   background-color: rgb(203, 231, 240);
   width: 440px;
-  height: 350px;
+  min-height: 350px;
   margin: 0 auto;
   top: 50%;
   border-radius: 24px;
   border: 1px solid #fff;
-  padding: 6px;
+  /* padding: 6px; */
 }
 
 .swapHeader {
@@ -152,7 +152,8 @@ body {
 /******************************************************************************/
 /* Swap Button */
 .swapButtonContainer {
-  margin: 10px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 .swapButton {
   width: 100%;
