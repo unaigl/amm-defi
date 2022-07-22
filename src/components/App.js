@@ -59,6 +59,8 @@ export function App() {
   */
   useEffect(() => {
     if (chain) {
+      settoken0Amount(0);
+      settoken1Amount(0);
       let chainIds = [1, 137, 3];
       let _chainId = parseInt(chain.id);
       for (let i = 0; i < chainIds.length; i++) {
@@ -68,7 +70,7 @@ export function App() {
           setcurrentSymbolsList(_tokenSymbols);
           // Setting default token for each chain
           if (_chainId === 3) {
-            setToken0Symbol("WETH");
+            setToken0Symbol("DAI");
             setToken1Symbol("USD");
           } else {
             setToken0Symbol("USDT");
@@ -88,12 +90,10 @@ export function App() {
   // In bigger DApps, is better idea to separate in different components
   const gettingTokens = (_value0, _value1) => {
     // if wallet is not connected (chain does not exist), take current token 0 and token1 values - In initial rendering we've setted default tokens
-    if (chain) {
-      const _token0 = tokenDataInChainX(_value0, chain.id);
-      const _token1 = tokenDataInChainX(_value1, chain.id);
-      console.log("PLEASE", _token0, _token1);
-      return { _token0, _token1 };
-    }
+    const _token0 = tokenDataInChainX(_value0, chain.id);
+    const _token1 = tokenDataInChainX(_value1, chain.id);
+    console.log("PLEASE", _token0, _token1);
+    return { _token0, _token1 };
   };
 
   // Setting token Contract
@@ -103,22 +103,27 @@ export function App() {
 
   // Setting token contract to get balanceOf when wallet connects
   const setTokenContract = (_value0, _value1) => {
-    // Getting selected token object and setting contracts (to show balance)
-    const { _token0, _token1 } = gettingTokens(_value0, _value1);
-    try {
-      // Creating token contracts
-      const _token0C = getContract(_token0.token.address[0]);
-      const _token1C = getContract(_token1.token.address[0]);
+    // Only when wallet is conected - Avoiding conflict in first render
+    if (chain) {
+      setToken0Symbol(_value0);
+      setToken1Symbol(_value1);
+      const { _token0, _token1 } = gettingTokens(_value0, _value1);
+      // Getting selected token object and setting contracts (to show balance)
+      try {
+        // Creating token contracts
+        const _token0C = getContract(_token0.token.address[0]);
+        const _token1C = getContract(_token1.token.address[0]);
 
-      // console.log({
-      //   a: _token0.token.symbol,
-      //   aa: token0Contract,
-      //   b: _token1.token.symbol,
-      //   bb: token1Contract,
-      // });
-      getBalanceOf(_token0C, _token1C);
-    } catch (error) {
-      console.log("--token0 and token1 are not defined yet--", error);
+        console.log({
+          a: _token0.token.symbol,
+          aa: token0Contract,
+          b: _token1.token.symbol,
+          bb: token1Contract,
+        });
+        getBalanceOf(_token0C, _token1C);
+      } catch (error) {
+        console.log("--token0 and token1 are not defined yet--", error);
+      }
     }
   };
 
@@ -168,7 +173,7 @@ export function App() {
     /* async function */
     getPrice(
       chain,
-      token0Contract.token,
+      token0Contract.token, // todo hace falta tanto el address, decimal como el contrato para el swap
       token1Contract.token,
       inputAmount,
       slippageAmount,
@@ -219,22 +224,26 @@ export function App() {
 
           <div className="swapBody">
             <CurrencyField
+              field={"input"}
               getSwapPrice={getSwapPrice}
               signer={signer}
               balance={token0Amount}
               symbols={currentSymbolsList}
-              currentSymbol={token0Symbol}
               setTokenContract={setTokenContract}
+              chain={chain}
+              symbol={token0Symbol}
             />
             <CurrencyField
+              field={"output"}
               value={outputAmount}
               signer={signer}
               balance={token1Amount}
               spinner={BeatLoader}
               loading={loading}
               symbols={currentSymbolsList}
-              currentSymbol={token1Symbol}
               setTokenContract={setTokenContract}
+              chain={chain}
+              symbol={token1Symbol}
             />
           </div>
 

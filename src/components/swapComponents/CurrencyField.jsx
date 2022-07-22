@@ -1,10 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form';
 import "../App.css"
 
+import { useNetwork, useSigner, useProvider, useAccount } from "wagmi";
+
+
 const CurrencyField = props => {
 
+  const { chain } = useNetwork();
+
+
   const [search, setSearch] = useState("");
+  const [contractLoadDelay, setContractLoadDelay] = useState(true);
 
 
   const getPrice = (value) => {
@@ -29,6 +36,14 @@ const CurrencyField = props => {
     // }
   }
 
+  useEffect(() => {
+    if (chain) {
+      setContractLoadDelay(true)
+      document.getElementById("field-input").value = ""
+    }
+  }, [chain])
+
+
   return (
     <div className="row currencyInput">
       <div className="col-md-6 numberContainer">
@@ -52,17 +67,32 @@ const CurrencyField = props => {
             placeholder="Filter by Symbol"
             className="form-control bg-light text-secondary border-0 mt-4 text-center"
             autoFocus
-            onChange={(e) => setSearch(e.target.value)}
+            field={props.field}
+            id='field-input'
+            onChange={(e) => {
+              if (contractLoadDelay) setContractLoadDelay(false)
+              setSearch(e.target.value)
+            }}
             style={{ marginBottom: "10px" }}
             // Cuando se selecciona desde el input, tambien se settean los tokens para hacer swap directamente, sin tener que usar el form-select
+            // todo usando el metodo como esta + agregando el dato del otro form-select (con document? se puede?')
             onBlur={e => {
-              props.setTokenContract(() => {
-
+              if (contractLoadDelay) setContractLoadDelay(false)
+              console.log("THIS", e.target.field)
+              let filtering = () => {
+                // using element's value after filtering from "search" value (in onChange) to get Symbol correctly
                 const filteredSymbols = filteredCoins(e.target.value.toLowerCase())
-
-                console.log('WHAAAAAAAAT', filteredSymbols[0])
+                // taking first value from array (most accurate value)
                 return filteredSymbols[0]
-              })
+              }
+              // Definfining parameters order for each "currencyField"
+              if (e.target.field === 'input') {
+                props.setTokenContract(filtering(), document.getElementsByClassName("form-select")[1].value)
+
+              } else {
+                props.setTokenContract(document.getElementsByClassName("form-select")[0].value, filtering())
+
+              }
             }}
           >
 
@@ -77,11 +107,13 @@ const CurrencyField = props => {
               document.getElementsByClassName("form-select")[0].value,
               document.getElementsByClassName("form-select")[1].value
             )
+            if (contractLoadDelay) setContractLoadDelay(false)
+
           }}
           // id={props.id}
           className="form-select"
         >
-          {props.symbols && <option style={{ background: "blue", color: "white" }} value={props.currentSymbol} >{props.currentSymbol}</option>}
+          {contractLoadDelay && <option value={props.symbol}>--</option>} {/* Forcing user to select a token to set selected contracts */}
           {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => {
             String.toString(index)
             return (
