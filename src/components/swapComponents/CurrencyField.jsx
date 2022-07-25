@@ -51,7 +51,6 @@ const CurrencyField = props => {
   const symbolChecking = (symbols) => {
     if (symbols[0] === symbols[1] || !symbols[0] || !symbols[1]) {
       setContractLoadDelay(true)
-      console.log('ContractLoadDelay', contractLoadDelay)
       alert("Is not possible to swap the same token")
       return false
     }
@@ -105,7 +104,7 @@ const CurrencyField = props => {
                 // Returning current symbols
                 const symbols = getCurrentSymbols()
                 // Checking if same token has been selected (or none)
-                if (!symbolChecking(symbols)) {
+                if (!symbolChecking(symbols, e)) {
                   e.currentTarget.value = "--"
                   return console.log('Select different tokens')
                 }

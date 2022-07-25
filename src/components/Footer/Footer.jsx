@@ -15,14 +15,11 @@ function Footer() {
     return (
         <Container fluid className="footer">
             <Row >
-                <small>In order to succed, in metamask; first confirm approve (to uniswap); second confirm swap  </small>
-                <small>Uniswap router contract: 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45  </small>
-                <b>As developer, I am not Responsible for Accidents Agreement</b>
-                <b>MIT license</b>
-                <p>Available Chains: Ethereum and Polygon. Contact me to add more chains </p>
+                <p>Available Mainnet Chains: Ethereum and Polygon </p>
                 <p>You can trade between first 450 tokens (NO coins yet) by market cap </p>
+                <p>Contact me to add more chains, tokens or coins </p>
                 <p>This DApp has been built from scrath</p>
-                <p>Data is fetched using web scraping technique.<a href='https://github.com/unaigl/scraping' > Check here! </a> </p>
+                <p>Data is fetched using web scraping technique.<a href='https://github.com/unaigl/scraping' > here! </a> </p>
             </Row>
             <Row >
                 <Col md={12} className="footer-center">
@@ -74,6 +71,17 @@ function Footer() {
                     </h2>
                 </Col>
             </Row>
+            <br />
+            <small>In order to swap, Ex. using metamask: </small>
+            <br />
+            <small>1_ Confirm approve (TO uniswap router): 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45  </small>
+            <br />
+            <small>2_ Confirm swap</small>
+            <br />
+            <br />
+            <p>Check DISCLAIMER OF RESPONSIBILITY <a href='https://github.com/unaigl/amm-defi/blob/master/Disclaimer-Warning.txt' > here! </a></p>
+            <br />
+
         </Container>
     );
 }

@@ -44,11 +44,6 @@ export function App() {
   const web3Provider = useProvider();
   const { address, isDisconnected } = useAccount();
 
-  if (isDisconnected) {
-    settoken0Amount(0);
-    settoken1Amount(0);
-  }
-
   /*
     Getting tokens symbols DATA in first render 
     &
@@ -87,6 +82,16 @@ export function App() {
     }
   }, [chain]);
 
+  // Reset input values when wallet is disconnected
+  useEffect(() => {
+    if (address) {
+      settoken0Amount(0);
+      settoken1Amount(0);
+      setRatio("--");
+      setTransaction(undefined);
+    }
+  }, [address]);
+
   /* 
   "setTokenContract" function is called from "select form" in "CurrencyField" component and
     updates tokens contracts and user balance when new token is seleceted
@@ -103,7 +108,6 @@ export function App() {
     // Set obligado, para poder obtener los datos del token en la funcion getPrice
     settoken0Object(_token0.token);
     settoken1Object(_token1.token);
-    console.log("TOKEN OBJECTS", token0Object, token1Object);
     return { _token0, _token1 };
   };
 
@@ -127,43 +131,39 @@ export function App() {
         const _token1C = getContract(_token1.token.address[0]);
         getBalanceOf(_token0C, _token1C);
       } catch (error) {
-        console.log("--token0 and token1 are not defined yet--", error);
+        console.log("--token0 and token1 are not defined yet--");
       }
     }
   };
 
   // Getting user's balance in both tokens
   const getBalanceOf = async (_token0C, _token1C) => {
-    try {
-      console.log("CALL USING INFURA");
-      if (_token0C === undefined || _token1C === undefined)
-        return console.log("contratos vacios");
-      // using Promise to get balanceOf from smart contract - Here we're using RPC calls via Infura/Alchemy/DefaultProvider
-      const myPromise = new Promise((resolve) => {
-        resolve(
-          // token0 balance
-          _token0C.balanceOf(address).then((res) => {
-            settoken0Amount(Number(ethers.utils.formatEther(res)));
-          }),
-          // token1 balance
-          _token1C.balanceOf(address).then((res) => {
-            settoken1Amount(Number(ethers.utils.formatEther(res)));
-          })
-        );
-      });
-
-      myPromise
-        .then(() => {
-          setToken0Contract(_token0C);
-          console.log({
-            cc: token0Contract.address,
-            dd: token1Contract,
-          });
+    if (_token0C === undefined || _token1C === undefined)
+      return console.log("Contracts are not defined yet");
+    // using Promise to get balanceOf from smart contract - Here we're using RPC calls via Infura/Alchemy/DefaultProvider
+    const myPromise = new Promise((resolve) => {
+      resolve(
+        // token0 balance
+        _token0C.balanceOf(address).then((res) => {
+          settoken0Amount(Number(ethers.utils.formatEther(res)));
+        }),
+        // token1 balance
+        _token1C.balanceOf(address).then((res) => {
+          settoken1Amount(Number(ethers.utils.formatEther(res)));
         })
-        .catch((err) => console.log("ERROR --Alchemy ", err));
-    } catch (error) {
-      console.log("--Alchemy service is not ready yet, try again--", error);
-    }
+      );
+    });
+
+    myPromise
+      .then(() => {
+        setToken0Contract(_token0C);
+      })
+      .catch((err) =>
+        console.log(
+          "--Issue getting balance. Provider service is not ready yet, Disconnect wallet, reload page and try again--",
+          err
+        )
+      );
   };
 
   /* 
@@ -198,7 +198,7 @@ export function App() {
       if (!address) alert("Connect your wallet");
       else alert("Change token selection and try again");
 
-      console.log(error);
+      console.log("--Uniswap Router--", error);
     }
   };
 
@@ -285,10 +285,9 @@ export function App() {
               <div className="swapButton">--</div>
             )}
           </div>
-          <Footer />
         </div>
+        <Footer />
       </div>
-      {/*  */}
     </div>
   );
 }

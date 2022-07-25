@@ -1,3 +1,4 @@
+//Check official documentation : https://docs.uniswap.org/sdk/guides/auto-router
 const { AlphaRouter } = require("@uniswap/smart-order-router");
 const {
   Token,
@@ -21,10 +22,7 @@ const getChainI_Router_token0_token1 = (
   _web3Provider
 ) => {
   let chainId = _chainId;
-  //Router
   let router = new AlphaRouter({ chainId: chainId, provider: _web3Provider });
-  // token0
-  console.log("decimals", _token0Object.decimals, _token1Object.decimals);
   const token0 = new Token(
     _chainId,
     _token0Object.address[0],
@@ -32,6 +30,7 @@ const getChainI_Router_token0_token1 = (
     _token0Object.symbol,
     _token0Object.symbol
   );
+
   const token1 = new Token(
     _chainId,
     _token1Object.address[0],
@@ -39,7 +38,6 @@ const getChainI_Router_token0_token1 = (
     _token1Object.symbol,
     _token1Object.symbol
   );
-  console.log("1EERRO AQUI", router, token0, token1);
   return { router, token0, token1 };
 };
 
@@ -48,7 +46,6 @@ export const getPrice = async (
   _token0Contract,
   _token0Object,
   _token1Object,
-  // token1Decimal,
   inputAmount,
   slippageAmount,
   deadline,
@@ -56,15 +53,14 @@ export const getPrice = async (
   _web3Provider
 ) => {
   // Declaring token0 contract to use in runSwap function
-  token0Contract = _token0Contract; // todo
-  // // if (_token0Object.symbol === _token1Object.symbol)
-  // //   return alert("Is not possible to swap the same token");
+  token0Contract = _token0Contract;
   const { router, token0, token1 } = getChainI_Router_token0_token1(
     _chainId,
     _token0Object,
     _token1Object,
     _web3Provider
   );
+  console.log("router", router, "token0", token0, "token1", token1);
   const percentSlippage = new Percent(slippageAmount, 100);
   const inputAmountWei = ethers.utils.parseUnits(
     inputAmount.toString(),
@@ -74,8 +70,6 @@ export const getPrice = async (
     /* WETH */ token0,
     JSBI.BigInt(inputAmountWei)
   );
-  console.log("is fine");
-  console.log(router);
 
   const route = await router.route(
     currencyAmount,
@@ -88,43 +82,7 @@ export const getPrice = async (
     }
   );
 
-  // console.log("is fine");
-
-  // let aa;
-  // // fetch(route.methodParameters.calldata, { mode: "no-cors" })
-  // //   .then((data) => {
-  // //     console.log("success");
-  // //     aa = data;
-  // //   })
-  // //   .catch((e) => {
-  // //     console.log("aqui", e);
-  // //   });
-  // let bb;
-  // // fetch(route.methodParameters.value, { mode: "no-cors" })
-  // //   .then((data) => {
-  // //     console.log("success");
-  // //     bb = data;
-  // //   })
-  // //   .catch((e) => {
-  // //     console.log("aqui", e);
-  // //   });
-  // let cc;
-  // // fetch(route.gasPriceWei, { mode: "no-cors" })
-  // //   .then((data) => {
-  // //     console.log("success");
-  // //     cc = data;
-  // //   })
-  // //   .catch((e) => {
-  // //     console.log("aqui", e);
-  // //   });
-  // // (async ()=> {
-
-  // //    aa = await route.methodParameters.calldata;
-  // //    bb = await route.methodParameters.value;
-  // //    cc = await route.gasPriceWei;
-  // // })()
-  // todo problema viene aqui
-  // todo: happens when the website is using the browser cache instead of actually sending a request
+  // Adding Ropsten chain there is a "Cors" issue. It happens when the website is using the browser cache instead of actually sending a request
   const transaction = {
     data: route.methodParameters.calldata, // FETCH
     to: V3_SWAP_ROUTER_ADDRESS,
@@ -136,7 +94,6 @@ export const getPrice = async (
 
   const quoteAmountOut = route.quote.toFixed(6);
   const ratio = (inputAmount / quoteAmountOut).toFixed(3);
-  console.log("transaction", transaction, quoteAmountOut, ratio);
   return [transaction, quoteAmountOut, ratio];
 };
 
