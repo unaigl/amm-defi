@@ -66,3 +66,24 @@ NO CARGA ADECUADAMENTE - las funciones async estan bien manejadas
 
 revisar si con un search se soluciona el problema del form-select. 
 Ya que sino, para modificar el array hay que hacer : indexOf() y splice() + agregar el eliminado anteriormente
+
+
+ARREGLAR e provider de POLYGON
+LOGICA DE SWAPS, pools
+
+
+CORS POLICY 
+--
+Access to fetch at 'https://cloudflare-ipfs.com/ipns/api.uniswap.org/v1/pools/v2/ropsten.json' from origin 'http://localhost:3000' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+--
+Como no usamos express, tenemos que ver si el trozo de codigo funciona:
+https://stackoverflow.com/questions/43262121/trying-to-use-fetch-and-pass-in-mode-no-cors
+se puede sin express??
+
+Hemos cambiado el atributo value por defalutValue
+https://stackoverflow.com/questions/43556212/failed-form-proptype-you-provided-a-value-prop-to-a-form-field-without-an-on
+
+ARREGLAR
+ETH va bien
+Roosten, cors
+Polygon, providers...

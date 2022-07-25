@@ -15,58 +15,65 @@ const V3_SWAP_ROUTER_ADDRESS = "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"; // 
 let token0Contract;
 
 const getChainI_Router_token0_token1 = (
-  _chain,
-  _token0,
-  _token1,
+  _chainId,
+  _token0Object,
+  _token1Object,
   _web3Provider
 ) => {
-  let chainId = _chain;
+  let chainId = _chainId;
   //Router
-  let _router = new AlphaRouter({ chainId: chainId, provider: _web3Provider });
-  // Declaring token0 contract to use in runSwap function
-  token0Contract = _token0.address; // todo
+  let router = new AlphaRouter({ chainId: chainId, provider: _web3Provider });
   // token0
+  console.log("decimals", _token0Object.decimals, _token1Object.decimals);
   const token0 = new Token(
-    _chain,
-    _token0.address,
-    _token0.decimals,
-    _token0.symbol,
-    _token0.symbol
+    _chainId,
+    _token0Object.address[0],
+    Number.parseInt(_token0Object.decimals[0]),
+    _token0Object.symbol,
+    _token0Object.symbol
   );
   const token1 = new Token(
-    _chain,
-    _token1.address,
-    _token1.decimals,
-    _token1.symbol,
-    _token1.symbol
+    _chainId,
+    _token1Object.address[0],
+    Number.parseInt(_token1Object.decimals[0]),
+    _token1Object.symbol,
+    _token1Object.symbol
   );
-
-  return { _router, token0, token1 };
+  console.log("1EERRO AQUI", router, token0, token1);
+  return { router, token0, token1 };
 };
 
 export const getPrice = async (
-  _chain,
-  _token0,
-  _token1,
+  _chainId,
+  _token0Contract,
+  _token0Object,
+  _token1Object,
+  // token1Decimal,
   inputAmount,
   slippageAmount,
   deadline,
   walletAddress,
   _web3Provider
 ) => {
-  if (_token0.symbol === _token1.symbol)
-    return alert("Is not possible to swap the same token");
+  // Declaring token0 contract to use in runSwap function
+  token0Contract = _token0Contract; // todo
+  // // if (_token0Object.symbol === _token1Object.symbol)
+  // //   return alert("Is not possible to swap the same token");
   const { router, token0, token1 } = getChainI_Router_token0_token1(
-    _chain,
-    _token0,
-    _token1,
+    _chainId,
+    _token0Object,
+    _token1Object,
     _web3Provider
   );
   const percentSlippage = new Percent(slippageAmount, 100);
-  const wei = ethers.utils.parseUnits(inputAmount.toString(), token0.decimals);
+  const inputAmountWei = ethers.utils.parseUnits(
+    inputAmount.toString(),
+    Number.parseInt(_token0Object.decimals[0])
+  );
+  console.log("AQUIII", token0, JSBI.BigInt(inputAmountWei));
   const currencyAmount = CurrencyAmount.fromRawAmount(
     /* WETH */ token0,
-    JSBI.BigInt(wei)
+    JSBI.BigInt(inputAmountWei)
   );
 
   const route = await router.route(

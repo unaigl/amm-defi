@@ -15,8 +15,8 @@ import { App } from "./components/App";
 const { chains, provider } = configureChains(
   [chain.mainnet, chain.polygon, chain.ropsten],
   [
-    infuraProvider({ infuraId: process.env.REACT_APP_INFURA_ID }),
-    alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID }),
+    // infuraProvider({ infuraId: process.env.REACT_APP_INFURA_ID }),
+    // alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID }),
     //todo cambiar
     // alchemyProvider({ infuraId: process.env.REACT_APP_ALCHEMY_ID_POLYGON }),
     publicProvider(),

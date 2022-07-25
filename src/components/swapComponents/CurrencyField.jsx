@@ -9,15 +9,21 @@ const CurrencyField = props => {
 
   const { chain } = useNetwork();
 
-
   const [search, setSearch] = useState("");
-  const [contractLoadDelay, setContractLoadDelay] = useState(true);
+  const [contractLoadDelay, setContractLoadDelay] = useState();
+  // Second state, cause 1st is not updating
+  const [contractLoadDelay2, setContractLoadDelay2] = useState(false);
 
+  useEffect(() => {
+    if (chain) {
+      setContractLoadDelay(true)
+      document.getElementById("field-input").value = ""
+    }
+  }, [chain])
 
   const getPrice = (value) => {
     props.getSwapPrice(value)
   }
-
 
   const showBalance = () => {
     if (props.balance === undefined) return ''
@@ -35,14 +41,21 @@ const CurrencyField = props => {
     return props.symbols
     // }
   }
-
-  useEffect(() => {
-    if (chain) {
-      setContractLoadDelay(true)
-      document.getElementById("field-input").value = ""
+  // Returning current symbols
+  const getCurrentSymbols = () => {
+    const _symbol0 = document.getElementsByClassName("form-select")[0].value
+    const _symbol1 = document.getElementsByClassName("form-select")[1].value
+    return [_symbol0, _symbol1]
+  }
+  // Checking if same token has been selected (or none)
+  const symbolChecking = (symbols) => {
+    if (symbols[0] === symbols[1] || !symbols[0] || !symbols[1]) {
+      setContractLoadDelay2(true)
+      console.log('ContractLoadDelay2', contractLoadDelay2)
+      alert("Is not possible to swap the same token")
+      return false
     }
-  }, [chain])
-
+  }
 
   return (
     <div className="row currencyInput">
@@ -55,7 +68,7 @@ const CurrencyField = props => {
           <input
             className="currencyInputField"
             placeholder="0.0"
-            value={props.value}
+            defaultValue={props.defaultValue}
             onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
           />
         )}
@@ -78,20 +91,31 @@ const CurrencyField = props => {
             // todo usando el metodo como esta + agregando el dato del otro form-select (con document? se puede?')
             onBlur={e => {
               if (contractLoadDelay) setContractLoadDelay(false)
-              console.log("THIS", e.target.field)
-              let filtering = () => {
-                // using element's value after filtering from "search" value (in onChange) to get Symbol correctly
-                const filteredSymbols = filteredCoins(e.target.value.toLowerCase())
-                // taking first value from array (most accurate value)
-                return filteredSymbols[0]
-              }
-              // Definfining parameters order for each "currencyField"
-              if (e.target.field === 'input') {
-                props.setTokenContract(filtering(), document.getElementsByClassName("form-select")[1].value)
+              if (search) {
+                let filteredSymbols;
+                let filtering = () => {
+                  // using element's value after filtering from "search" value (in onChange) to get Symbol correctly
+                  const filteredSy = filteredCoins(e.target.value.toLowerCase())
+                  // taking first value from array (most accurate value)
+                  filteredSymbols = filteredSy[0]
+                  return filteredSymbols
+                }
 
-              } else {
-                props.setTokenContract(document.getElementsByClassName("form-select")[0].value, filtering())
 
+                // Definfining parameters order for each "currencyField"
+                if (!filteredSymbols) return
+                // Returning current symbols
+                const symbols = getCurrentSymbols()
+                // Checking if same token has been selected (or none)
+                if (!symbolChecking(symbols)) return console.log('Select different tokens')
+
+                if (e.target.field === 'input') {
+                  props.setTokenContract(filtering(), symbols[1])
+
+                } else {
+                  props.setTokenContract(symbols[0], filtering())
+
+                }
               }
             }}
           >
@@ -102,10 +126,15 @@ const CurrencyField = props => {
         </div>
         <Form.Select
           aria-label="Default select example"
-          onChange={(e) => {
+          onChange={() => {
+            // Returning current symbols
+            const symbols = getCurrentSymbols()
+            // Checking if same token has been selected (or none)
+            if (!symbolChecking(symbols)) return console.log('Select different tokens')
+
             props.setTokenContract(
-              document.getElementsByClassName("form-select")[0].value,
-              document.getElementsByClassName("form-select")[1].value
+              symbols[0], // document.getElementsByClassName("form-select")[0].value,
+              symbols[1]// document.getElementsByClassName("form-select")[1].value
             )
             if (contractLoadDelay) setContractLoadDelay(false)
 
@@ -113,8 +142,8 @@ const CurrencyField = props => {
           // id={props.id}
           className="form-select"
         >
-          {contractLoadDelay && <option value={props.symbol}>--</option>} {/* Forcing user to select a token to set selected contracts */}
-          {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => {
+          {(contractLoadDelay || contractLoadDelay2) && <option value={props.symbol}>--</option>} {/* Forcing user to select a token to set selected contracts */}
+          {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => { // USING "filteredCoins" to return only a list of coins that match the search
             String.toString(index)
             return (
               <option name={symbol} value={symbol} key={index}>{symbol}</option>

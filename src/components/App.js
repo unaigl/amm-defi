@@ -30,10 +30,12 @@ export function App() {
   const [transaction, setTransaction] = useState(undefined);
   const [loading, setLoading] = useState(undefined);
   const [ratio, setRatio] = useState(undefined);
-  const [token0Contract, settoken0Contract] = useState(undefined);
-  const [token1Contract, settoken1Contract] = useState(undefined);
+  const [token0Contract, setToken0Contract] = useState(undefined);
+  const [token1Contract, setToken1Contract] = useState(undefined);
   const [token0Amount, settoken0Amount] = useState(undefined);
   const [token1Amount, settoken1Amount] = useState(undefined);
+  const [token0Object, settoken0Object] = useState(undefined);
+  const [token1Object, settoken1Object] = useState(undefined);
   const [currentSymbolsList, setcurrentSymbolsList] = useState();
   // const [avoidingConflictSymbolsList, setavoidingConflictSymbolsList] =
   //   useState();
@@ -57,6 +59,10 @@ export function App() {
     &
     updating tokens symbols when chain changes
   */
+
+  // todo: cuando refresca la pagina sale USDT - USDT. Dejarlo
+  // El problema viene cuando refresca la pagina con la wallet conectada.
+  // Si se accede a la pagina y se conecta la wallet, se settea APE - UNI
   useEffect(() => {
     if (chain) {
       settoken0Amount(0);
@@ -68,12 +74,18 @@ export function App() {
           const _tokenSymbols = swapChain(_chainId);
           // setTokenSymbols(_tokenAddresses);
           setcurrentSymbolsList(_tokenSymbols);
+          // set "Currency-field" input-output values
+          const currencyFieldValues = document.querySelectorAll(
+            ".currencyInputField"
+          );
+          currencyFieldValues.forEach((a) => (a.value = 0));
+          // document.querySelector(".spinnerContainer").value = 0;
           // Setting default token for each chain
           if (_chainId === 3) {
             setToken0Symbol("DAI");
             setToken1Symbol("USD");
           } else {
-            setToken0Symbol("USDT");
+            setToken0Symbol("APE");
             setToken1Symbol("UNI");
           }
         }
@@ -90,9 +102,14 @@ export function App() {
   // In bigger DApps, is better idea to separate in different components
   const gettingTokens = (_value0, _value1) => {
     // if wallet is not connected (chain does not exist), take current token 0 and token1 values - In initial rendering we've setted default tokens
+    // const _token0 = tokenDataInChainX(_value0, chain.id);
+    // const _token1 = tokenDataInChainX(_value1, chain.id);
     const _token0 = tokenDataInChainX(_value0, chain.id);
     const _token1 = tokenDataInChainX(_value1, chain.id);
-    console.log("PLEASE", _token0, _token1);
+    // Set obligado, para poder obtener los datos del token en la funcion getPrice
+    settoken0Object(_token0.token);
+    settoken1Object(_token1.token);
+    console.log("SABADO", _token0, _token1, token0Object, token1Object);
     return { _token0, _token1 };
   };
 
@@ -105,6 +122,7 @@ export function App() {
   const setTokenContract = (_value0, _value1) => {
     // Only when wallet is conected - Avoiding conflict in first render
     if (chain) {
+      // Setting tokenSymbol for "form-select" render
       setToken0Symbol(_value0);
       setToken1Symbol(_value1);
       const { _token0, _token1 } = gettingTokens(_value0, _value1);
@@ -114,12 +132,12 @@ export function App() {
         const _token0C = getContract(_token0.token.address[0]);
         const _token1C = getContract(_token1.token.address[0]);
 
-        console.log({
-          a: _token0.token.symbol,
-          aa: token0Contract,
-          b: _token1.token.symbol,
-          bb: token1Contract,
-        });
+        // console.log({
+        //   a: _token0.token.symbol,
+        //   aa: token0Contract,
+        //   b: _token1.token.symbol,
+        //   bb: token1Contract,
+        // });
         getBalanceOf(_token0C, _token1C);
       } catch (error) {
         console.log("--token0 and token1 are not defined yet--", error);
@@ -149,10 +167,17 @@ export function App() {
 
       myPromise
         .then(() => {
-          settoken0Contract(_token0C);
-          settoken1Contract(_token1C);
+          setToken0Contract(_token0C);
+          // setToken1Contract(_token1C);
+          // prueba - los coje mal
+          // token0Contract.decimals().then((res) => {
+          //   console.log("SABADOO", res);
+          // });
+          // token1Contract.decimals().then((res) => {
+          //   console.log("SABADOO2222", res);
+          // });
           console.log({
-            cc: token0Contract,
+            cc: token0Contract.address,
             dd: token1Contract,
           });
         })
@@ -166,20 +191,22 @@ export function App() {
      Defining transaction objects in "getSwapPrice"
      Clicking in interface button -> call "runSwap" function (declared in AlphaRouterService)
   */
-  const getSwapPrice = async (/* inputAmount */) => {
+  const getSwapPrice = async (inputAmount) => {
     setLoading(true);
     setInputAmount(inputAmount);
 
     /* async function */
-    getPrice(
-      chain,
-      token0Contract.token, // todo hace falta tanto el address, decimal como el contrato para el swap
-      token1Contract.token,
+    await getPrice(
+      chain.id, // añadido
+      token0Contract.address, // todo hace falta tanto el address, decimal como el contrato para el swap
+      // token1Contract.address, // añadido
+      token0Object, // añadido
+      token1Object, // añadido
       inputAmount,
       slippageAmount,
       Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
-      signer, // todo: estaba como signerAddress. "signer.address" ?? es lo mismo? o "address" ?
-      web3Provider
+      address, // todo: estaba como signerAddress. "signer.address" ?? es lo mismo? o "address" ?
+      web3Provider // añadido
     ).then((data) => {
       setTransaction(data[0]);
       setOutputAmount(data[1]);
@@ -235,7 +262,7 @@ export function App() {
             />
             <CurrencyField
               field={"output"}
-              value={outputAmount}
+              defaultValue={outputAmount}
               signer={signer}
               balance={token1Amount}
               spinner={BeatLoader}
@@ -248,7 +275,7 @@ export function App() {
           </div>
 
           <div className="ratioContainer">
-            {ratio && <>{`1 UNI = ${ratio} WETH`}</>}
+            {ratio && <>{`1 ${token1Symbol} = ${ratio} ${token0Symbol}`}</>}
           </div>
 
           <div className="swapButtonContainer">
