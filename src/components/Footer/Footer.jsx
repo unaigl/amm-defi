@@ -79,7 +79,7 @@ function Footer() {
             <small>2_ Confirm swap</small>
             <br />
             <br />
-            <p>Check DISCLAIMER OF RESPONSIBILITY <a href='https://github.com/unaigl/amm-defi/blob/master/Disclaimer-Warning.txt' > here! </a></p>
+            <p>Check DISCLAIMER OF RESPONSIBILITY <a href='https://github.com/unaigl/amm-defi' > here! </a></p>
             <br />
 
         </Container>

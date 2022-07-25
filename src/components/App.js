@@ -4,6 +4,9 @@ import { ethers } from "ethers";
 import { GearFill } from "react-bootstrap-icons";
 
 import ConfigModal from "./swapComponents/ConfigModal";
+import SwapModal from "./swapComponents/SwapModal";
+import Button from "react-bootstrap/Button";
+
 import CurrencyField from "./swapComponents/CurrencyField";
 
 import BeatLoader from "react-spinners/BeatLoader";
@@ -37,6 +40,9 @@ export function App() {
 
   const [token0Symbol, setToken0Symbol] = useState(undefined);
   const [token1Symbol, setToken1Symbol] = useState(undefined);
+
+  const [modalShow, setModalShow] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   /*  WAGMI hooks*/
   const { chain } = useNetwork();
@@ -103,6 +109,7 @@ export function App() {
     // if wallet is not connected (chain does not exist), take current token 0 and token1 values - In initial rendering we've setted default tokens
     // const _token0 = tokenDataInChainX(_value0, chain.id);
     // const _token1 = tokenDataInChainX(_value1, chain.id);
+    setVerified(false);
     const _token0 = tokenDataInChainX(_value0, chain.id);
     const _token1 = tokenDataInChainX(_value1, chain.id);
     // Set obligado, para poder obtener los datos del token en la funcion getPrice
@@ -273,9 +280,8 @@ export function App() {
           </div>
 
           <div className="swapButtonContainer">
-            {transaction ? (
+            {verified ? (
               <div
-                // TODO agregar un modal para asegurar que tokens se estan swapeando
                 onClick={() => runSwap(transaction, signer, web3Provider)}
                 className="swapButton"
               >
@@ -286,6 +292,22 @@ export function App() {
             )}
           </div>
         </div>
+        {/*  */}
+        <Button variant="secondary" onClick={() => setModalShow(true)}>
+          Verify Transaction
+        </Button>
+
+        <SwapModal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          symbol0={token0Symbol}
+          symbol1={token1Symbol}
+          cuantity0={token0Amount}
+          cuantity1={token1Amount}
+          runSwap={runSwap}
+          onVerified={() => setVerified(true)}
+        />
+        {/*  */}
         <Footer />
       </div>
     </div>
