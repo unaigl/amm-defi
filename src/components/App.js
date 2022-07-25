@@ -18,9 +18,6 @@ import { swapChain, tokenDataInChainX } from "../data/getData";
 import ERC20ABI from "../data/abi.json";
 
 export function App() {
-  // const [signer, setSigner] = useState(undefined);
-  // const [signerAddress, setSignerAddress] = useState(undefined);
-
   const [slippageAmount, setSlippageAmount] = useState(2);
   const [deadlineMinutes, setDeadlineMinutes] = useState(10);
   const [showModal, setShowModal] = useState(undefined);
@@ -37,22 +34,20 @@ export function App() {
   const [token0Object, settoken0Object] = useState(undefined);
   const [token1Object, settoken1Object] = useState(undefined);
   const [currentSymbolsList, setcurrentSymbolsList] = useState();
-  // const [avoidingConflictSymbolsList, setavoidingConflictSymbolsList] =
-  //   useState();
-  // const [tokenAddresses, setTokenAddresses] = useState();
 
   const [token0Symbol, setToken0Symbol] = useState(undefined);
   const [token1Symbol, setToken1Symbol] = useState(undefined);
-  // no se actualiza con los de arriba... creamos otro par
-  // const [token1Symbol2, setToken1Symbol2] = useState(undefined);
 
   /*  WAGMI hooks*/
   const { chain } = useNetwork();
   const { data: signer, isError, isLoading } = useSigner();
   const web3Provider = useProvider();
-  const { address, isConnecting, isDisconnected } = useAccount();
+  const { address, isDisconnected } = useAccount();
 
-  const isConnected = () => chain !== undefined;
+  if (isDisconnected) {
+    settoken0Amount(0);
+    settoken1Amount(0);
+  }
 
   /*
     Getting tokens symbols DATA in first render 
@@ -60,14 +55,12 @@ export function App() {
     updating tokens symbols when chain changes
   */
 
-  // todo: cuando refresca la pagina sale USDT - USDT. Dejarlo
-  // El problema viene cuando refresca la pagina con la wallet conectada.
-  // Si se accede a la pagina y se conecta la wallet, se settea APE - UNI
   useEffect(() => {
     if (chain) {
       settoken0Amount(0);
       settoken1Amount(0);
       setRatio("--");
+      setTransaction(undefined);
       let chainIds = [1, 137, 3];
       let _chainId = parseInt(chain.id);
       for (let i = 0; i < chainIds.length; i++) {
@@ -110,7 +103,7 @@ export function App() {
     // Set obligado, para poder obtener los datos del token en la funcion getPrice
     settoken0Object(_token0.token);
     settoken1Object(_token1.token);
-    console.log("SABADO", _token0, _token1, token0Object, token1Object);
+    console.log("TOKEN OBJECTS", token0Object, token1Object);
     return { _token0, _token1 };
   };
 
@@ -132,13 +125,6 @@ export function App() {
         // Creating token contracts
         const _token0C = getContract(_token0.token.address[0]);
         const _token1C = getContract(_token1.token.address[0]);
-
-        // console.log({
-        //   a: _token0.token.symbol,
-        //   aa: token0Contract,
-        //   b: _token1.token.symbol,
-        //   bb: token1Contract,
-        // });
         getBalanceOf(_token0C, _token1C);
       } catch (error) {
         console.log("--token0 and token1 are not defined yet--", error);
@@ -169,14 +155,6 @@ export function App() {
       myPromise
         .then(() => {
           setToken0Contract(_token0C);
-          // setToken1Contract(_token1C);
-          // prueba - los coje mal
-          // token0Contract.decimals().then((res) => {
-          //   console.log("SABADOO", res);
-          // });
-          // token1Contract.decimals().then((res) => {
-          //   console.log("SABADOO2222", res);
-          // });
           console.log({
             cc: token0Contract.address,
             dd: token1Contract,
@@ -198,16 +176,15 @@ export function App() {
 
     try {
       await getPrice(
-        chain.id, // añadido
-        token0Contract.address, // todo hace falta tanto el address, decimal como el contrato para el swap
-        // token1Contract.address, // añadido
-        token0Object, // añadido
-        token1Object, // añadido
+        chain.id,
+        token0Contract.address,
+        token0Object,
+        token1Object,
         inputAmount,
         slippageAmount,
         Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
-        address, // todo: estaba como signerAddress. "signer.address" ?? es lo mismo? o "address" ?
-        web3Provider // añadido
+        address,
+        web3Provider
       ).then((data) => {
         setTransaction(data[0]);
         setOutputAmount(data[1]);
@@ -215,14 +192,14 @@ export function App() {
         setLoading(false);
       });
     } catch (error) {
-      alert("Try again changing token selection");
       setLoading(false);
       setOutputAmount(0);
       setRatio("--");
+      if (!address) alert("Connect your wallet");
+      else alert("Change token selection and try again");
 
       console.log(error);
     }
-    /* async function */
   };
 
   // Interface - connectButton + swapContainer + footer
@@ -289,15 +266,14 @@ export function App() {
           <div className="ratioContainer">
             {ratio && (
               <p>
-                1 <b>{token0Symbol}</b> = {`${ratio} `}
-                <b>{token1Symbol}</b>
-                {/* {`1 ${token1Symbol} = ${ratio} ${token0Symbol}`} */}
+                1 <b>{token1Symbol}</b> = {`${ratio} `}
+                <b>{token0Symbol}</b>
               </p>
             )}
           </div>
 
           <div className="swapButtonContainer">
-            {isConnected() ? (
+            {transaction ? (
               <div
                 // TODO agregar un modal para asegurar que tokens se estan swapeando
                 onClick={() => runSwap(transaction, signer, web3Provider)}

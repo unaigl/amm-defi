@@ -74,10 +74,12 @@ export const getPrice = async (
     /* WETH */ token0,
     JSBI.BigInt(inputAmountWei)
   );
+  console.log("is fine");
+  console.log(router);
 
   const route = await router.route(
     currencyAmount,
-    /* UNI token */ token1, // todo
+    /* UNI token */ token1,
     TradeType.EXACT_INPUT,
     {
       recipient: walletAddress,
@@ -86,8 +88,45 @@ export const getPrice = async (
     }
   );
 
+  // console.log("is fine");
+
+  // let aa;
+  // // fetch(route.methodParameters.calldata, { mode: "no-cors" })
+  // //   .then((data) => {
+  // //     console.log("success");
+  // //     aa = data;
+  // //   })
+  // //   .catch((e) => {
+  // //     console.log("aqui", e);
+  // //   });
+  // let bb;
+  // // fetch(route.methodParameters.value, { mode: "no-cors" })
+  // //   .then((data) => {
+  // //     console.log("success");
+  // //     bb = data;
+  // //   })
+  // //   .catch((e) => {
+  // //     console.log("aqui", e);
+  // //   });
+  // let cc;
+  // // fetch(route.gasPriceWei, { mode: "no-cors" })
+  // //   .then((data) => {
+  // //     console.log("success");
+  // //     cc = data;
+  // //   })
+  // //   .catch((e) => {
+  // //     console.log("aqui", e);
+  // //   });
+  // // (async ()=> {
+
+  // //    aa = await route.methodParameters.calldata;
+  // //    bb = await route.methodParameters.value;
+  // //    cc = await route.gasPriceWei;
+  // // })()
+  // todo problema viene aqui
+  // todo: happens when the website is using the browser cache instead of actually sending a request
   const transaction = {
-    data: route.methodParameters.calldata,
+    data: route.methodParameters.calldata, // FETCH
     to: V3_SWAP_ROUTER_ADDRESS,
     value: BigNumber.from(route.methodParameters.value),
     from: walletAddress,
@@ -97,7 +136,7 @@ export const getPrice = async (
 
   const quoteAmountOut = route.quote.toFixed(6);
   const ratio = (inputAmount / quoteAmountOut).toFixed(3);
-
+  console.log("transaction", transaction, quoteAmountOut, ratio);
   return [transaction, quoteAmountOut, ratio];
 };
 

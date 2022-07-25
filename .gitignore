@@ -6,3 +6,5 @@ src/components/provisional
 
 .tasks.txt
 data
+cors
+build
