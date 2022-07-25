@@ -10,9 +10,9 @@ const CurrencyField = props => {
   const { chain } = useNetwork();
 
   const [search, setSearch] = useState("");
-  const [contractLoadDelay, setContractLoadDelay] = useState();
+  const [contractLoadDelay, setContractLoadDelay] = useState(true);
   // Second state, cause 1st is not updating
-  const [contractLoadDelay2, setContractLoadDelay2] = useState(false);
+  // const [contractLoadDelay2, setContractLoadDelay2] = useState(false);
 
   useEffect(() => {
     if (chain) {
@@ -50,11 +50,15 @@ const CurrencyField = props => {
   // Checking if same token has been selected (or none)
   const symbolChecking = (symbols) => {
     if (symbols[0] === symbols[1] || !symbols[0] || !symbols[1]) {
-      setContractLoadDelay2(true)
-      console.log('ContractLoadDelay2', contractLoadDelay2)
+      setContractLoadDelay(true)
+      console.log('ContractLoadDelay', contractLoadDelay)
       alert("Is not possible to swap the same token")
       return false
     }
+    else if (contractLoadDelay) {
+      setContractLoadDelay(false)
+    }
+    return true
   }
 
   return (
@@ -92,23 +96,21 @@ const CurrencyField = props => {
             onBlur={e => {
               if (contractLoadDelay) setContractLoadDelay(false)
               if (search) {
-                let filteredSymbols;
+                let filteredSymbol;
                 let filtering = () => {
                   // using element's value after filtering from "search" value (in onChange) to get Symbol correctly
                   const filteredSy = filteredCoins(e.target.value.toLowerCase())
                   // taking first value from array (most accurate value)
-                  filteredSymbols = filteredSy[0]
-                  return filteredSymbols
+                  filteredSymbol = filteredSy[0]
+                  return filteredSymbol
                 }
-
-
-                // Definfining parameters order for each "currencyField"
-                if (!filteredSymbols) return
+                if (!filteredSymbol) return
                 // Returning current symbols
                 const symbols = getCurrentSymbols()
                 // Checking if same token has been selected (or none)
                 if (!symbolChecking(symbols)) return console.log('Select different tokens')
 
+                // Definfining parameters order for each "currencyField"
                 if (e.target.field === 'input') {
                   props.setTokenContract(filtering(), symbols[1])
 
@@ -126,11 +128,14 @@ const CurrencyField = props => {
         </div>
         <Form.Select
           aria-label="Default select example"
-          onChange={() => {
+          onChange={(e) => {
             // Returning current symbols
             const symbols = getCurrentSymbols()
             // Checking if same token has been selected (or none)
-            if (!symbolChecking(symbols)) return console.log('Select different tokens')
+            if (!symbolChecking(symbols)) {
+              e.currentTarget.value = "--"
+              return console.log('Select different tokens')
+            }
 
             props.setTokenContract(
               symbols[0], // document.getElementsByClassName("form-select")[0].value,
@@ -142,7 +147,7 @@ const CurrencyField = props => {
           // id={props.id}
           className="form-select"
         >
-          {(contractLoadDelay || contractLoadDelay2) && <option value={props.symbol}>--</option>} {/* Forcing user to select a token to set selected contracts */}
+          {contractLoadDelay && <option value={props.symbol}>--</option>} {/* Forcing user to select a token to set selected TOKEN contracts */}
           {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => { // USING "filteredCoins" to return only a list of coins that match the search
             String.toString(index)
             return (
