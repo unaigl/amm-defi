@@ -70,7 +70,6 @@ export const getPrice = async (
     inputAmount.toString(),
     Number.parseInt(_token0Object.decimals[0])
   );
-  console.log("AQUIII", token0, JSBI.BigInt(inputAmountWei));
   const currencyAmount = CurrencyAmount.fromRawAmount(
     /* WETH */ token0,
     JSBI.BigInt(inputAmountWei)

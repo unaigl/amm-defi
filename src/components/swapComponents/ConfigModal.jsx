@@ -1,7 +1,7 @@
 import React from 'react';
 
 const ConfigModal = props => {
-  return(
+  return (
     <div className="modaly" onClick={props.onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-body">

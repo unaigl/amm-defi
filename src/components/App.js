@@ -67,6 +67,7 @@ export function App() {
     if (chain) {
       settoken0Amount(0);
       settoken1Amount(0);
+      setRatio("--");
       let chainIds = [1, 137, 3];
       let _chainId = parseInt(chain.id);
       for (let i = 0; i < chainIds.length; i++) {
@@ -195,24 +196,33 @@ export function App() {
     setLoading(true);
     setInputAmount(inputAmount);
 
-    /* async function */
-    await getPrice(
-      chain.id, // añadido
-      token0Contract.address, // todo hace falta tanto el address, decimal como el contrato para el swap
-      // token1Contract.address, // añadido
-      token0Object, // añadido
-      token1Object, // añadido
-      inputAmount,
-      slippageAmount,
-      Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
-      address, // todo: estaba como signerAddress. "signer.address" ?? es lo mismo? o "address" ?
-      web3Provider // añadido
-    ).then((data) => {
-      setTransaction(data[0]);
-      setOutputAmount(data[1]);
-      setRatio(data[2]);
+    try {
+      await getPrice(
+        chain.id, // añadido
+        token0Contract.address, // todo hace falta tanto el address, decimal como el contrato para el swap
+        // token1Contract.address, // añadido
+        token0Object, // añadido
+        token1Object, // añadido
+        inputAmount,
+        slippageAmount,
+        Math.floor(Date.now() / 1000 + deadlineMinutes * 60),
+        address, // todo: estaba como signerAddress. "signer.address" ?? es lo mismo? o "address" ?
+        web3Provider // añadido
+      ).then((data) => {
+        setTransaction(data[0]);
+        setOutputAmount(data[1]);
+        setRatio(data[2]);
+        setLoading(false);
+      });
+    } catch (error) {
+      alert("Try again changing token selection");
       setLoading(false);
-    });
+      setOutputAmount(0);
+      setRatio("--");
+
+      console.log(error);
+    }
+    /* async function */
   };
 
   // Interface - connectButton + swapContainer + footer
@@ -259,6 +269,7 @@ export function App() {
               setTokenContract={setTokenContract}
               chain={chain}
               symbol={token0Symbol}
+              name="form-select-input"
             />
             <CurrencyField
               field={"output"}
@@ -271,16 +282,24 @@ export function App() {
               setTokenContract={setTokenContract}
               chain={chain}
               symbol={token1Symbol}
+              name="form-select-output"
             />
           </div>
 
           <div className="ratioContainer">
-            {ratio && <>{`1 ${token1Symbol} = ${ratio} ${token0Symbol}`}</>}
+            {ratio && (
+              <p>
+                1 <b>{token0Symbol}</b> = {`${ratio} `}
+                <b>{token1Symbol}</b>
+                {/* {`1 ${token1Symbol} = ${ratio} ${token0Symbol}`} */}
+              </p>
+            )}
           </div>
 
           <div className="swapButtonContainer">
             {isConnected() ? (
               <div
+                // TODO agregar un modal para asegurar que tokens se estan swapeando
                 onClick={() => runSwap(transaction, signer, web3Provider)}
                 className="swapButton"
               >

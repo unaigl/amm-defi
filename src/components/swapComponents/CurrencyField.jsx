@@ -43,8 +43,8 @@ const CurrencyField = props => {
   }
   // Returning current symbols
   const getCurrentSymbols = () => {
-    const _symbol0 = document.getElementsByClassName("form-select")[0].value
-    const _symbol1 = document.getElementsByClassName("form-select")[1].value
+    const _symbol0 = document.getElementsByClassName("form-select-input")[0].value
+    const _symbol1 = document.getElementsByClassName("form-select-output")[0].value
     return [_symbol0, _symbol1]
   }
   // Checking if same token has been selected (or none)
@@ -92,32 +92,34 @@ const CurrencyField = props => {
             }}
             style={{ marginBottom: "10px" }}
             // Cuando se selecciona desde el input, tambien se settean los tokens para hacer swap directamente, sin tener que usar el form-select
-            // todo usando el metodo como esta + agregando el dato del otro form-select (con document? se puede?')
             onBlur={e => {
               if (contractLoadDelay) setContractLoadDelay(false)
               if (search) {
-                let filteredSymbol;
-                let filtering = () => {
-                  // using element's value after filtering from "search" value (in onChange) to get Symbol correctly
-                  const filteredSy = filteredCoins(e.target.value.toLowerCase())
-                  // taking first value from array (most accurate value)
-                  filteredSymbol = filteredSy[0]
-                  return filteredSymbol
-                }
+
+                // using DOMelement's value after filtering from "search" value (in onChange) to get Symbol correctly
+                const filteredSymbols = filteredCoins(e.target.value.toLowerCase())
+                // taking first value from DATA array (most accurate value)
+                const filteredSymbol = filteredSymbols[0]
+                // Stop process if is not a match
                 if (!filteredSymbol) return
                 // Returning current symbols
                 const symbols = getCurrentSymbols()
                 // Checking if same token has been selected (or none)
-                if (!symbolChecking(symbols)) return console.log('Select different tokens')
+                if (!symbolChecking(symbols)) {
+                  e.currentTarget.value = "--"
+                  return console.log('Select different tokens')
+                }
 
                 // Definfining parameters order for each "currencyField"
                 if (e.target.field === 'input') {
-                  props.setTokenContract(filtering(), symbols[1])
+                  props.setTokenContract(filteredSymbol, symbols[1])
 
                 } else {
-                  props.setTokenContract(symbols[0], filtering())
+                  props.setTokenContract(symbols[0], filteredSymbol)
 
                 }
+                // // Checking if filtered symbol from DATA array is the same as "form.Select's" value
+                // if (filteredSymbol !== e.currentTarget.value) return alert('Filter issue')
               }
             }}
           >
@@ -145,7 +147,7 @@ const CurrencyField = props => {
 
           }}
           // id={props.id}
-          className="form-select"
+          className={props.name}
         >
           {contractLoadDelay && <option value={props.symbol}>--</option>} {/* Forcing user to select a token to set selected TOKEN contracts */}
           {props.symbols ? filteredCoins(search.toLowerCase()).map((symbol, index) => { // USING "filteredCoins" to return only a list of coins that match the search
