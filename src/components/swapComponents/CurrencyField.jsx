@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Form from 'react-bootstrap/Form';
 import "../App.css"
 
-import { useNetwork, useSigner, useProvider, useAccount } from "wagmi";
+import { useNetwork } from "wagmi";
 
 
 const CurrencyField = props => {
@@ -70,8 +70,12 @@ const CurrencyField = props => {
         ) : (
           <input
             className="currencyInputField"
+            // field={props.field}
+            id={`swap-value-${props.field}`}
+
             placeholder="0.0"
             defaultValue={props.defaultValue}
+            // onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
             onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
           />
         )}

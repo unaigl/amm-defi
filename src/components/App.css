@@ -162,8 +162,24 @@ body {
   font-size: 24px;
   color: #fff;
   border-radius: 20px;
-  background-color: #7c3a92;
+  background-color: #582369;
   cursor: pointer;
+}
+.button-swap-color {
+  background-color: #582369;
+}
+.button-swap-color:hover {
+  background-color: #6c1d87;
+}
+.button-verify-color {
+  background-color: #2f2365;
+}
+.button-no-verify-color {
+  background-color: #78777d;
+  color: rgb(192, 190, 190);
+}
+.button-verify-color:hover {
+  background-color: #301d87;
 }
 
 /******************************************************************************/

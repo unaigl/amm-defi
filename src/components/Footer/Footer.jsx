@@ -74,9 +74,15 @@ function Footer() {
             <br />
             <small>In order to swap, Ex. using metamask: </small>
             <br />
-            <small>1_ Confirm approve (TO uniswap router): 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45  </small>
+            <small>Select two token amount  </small>
             <br />
-            <small>2_ Confirm swap</small>
+            <small>1_ Verify transaction data  </small>
+            <br />
+            <small>Press Swap  </small>
+            <br />
+            <small>2_ Confirm approve (TO uniswap router): 0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45  </small>
+            <br />
+            <small>3_ Confirm swap</small>
             <br />
             <br />
             <p>Check DISCLAIMER OF RESPONSIBILITY <a href='https://github.com/unaigl/amm-defi' > here! </a></p>

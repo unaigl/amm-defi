@@ -32,8 +32,8 @@ export function App() {
   const [ratio, setRatio] = useState(undefined);
   const [token0Contract, setToken0Contract] = useState(undefined);
   const [token1Contract, setToken1Contract] = useState(undefined);
-  const [token0Amount, settoken0Amount] = useState(undefined);
-  const [token1Amount, settoken1Amount] = useState(undefined);
+  const [token0Amount, setToken0Amount] = useState(undefined);
+  const [token1Amount, setToken1Amount] = useState(undefined);
   const [token0Object, settoken0Object] = useState(undefined);
   const [token1Object, settoken1Object] = useState(undefined);
   const [currentSymbolsList, setcurrentSymbolsList] = useState();
@@ -43,6 +43,7 @@ export function App() {
 
   const [modalShow, setModalShow] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [isTransaction, setIsTransaction] = useState(true);
 
   /*  WAGMI hooks*/
   const { chain } = useNetwork();
@@ -58,10 +59,11 @@ export function App() {
 
   useEffect(() => {
     if (chain) {
-      settoken0Amount(0);
-      settoken1Amount(0);
+      setToken0Amount(0);
+      setToken1Amount(0);
       setRatio("--");
       setTransaction(undefined);
+      setIsTransaction(true);
       let chainIds = [1, 137, 3];
       let _chainId = parseInt(chain.id);
       for (let i = 0; i < chainIds.length; i++) {
@@ -91,10 +93,11 @@ export function App() {
   // Reset input values when wallet is disconnected
   useEffect(() => {
     if (address) {
-      settoken0Amount(0);
-      settoken1Amount(0);
+      setToken0Amount(0);
+      setToken1Amount(0);
       setRatio("--");
       setTransaction(undefined);
+      setIsTransaction(true);
     }
   }, [address]);
 
@@ -125,6 +128,9 @@ export function App() {
 
   // Setting token contract to get balanceOf when wallet connects
   const setTokenContract = (_value0, _value1) => {
+    // clearing previous swap values
+    document.getElementById("swap-value-input").value = 0;
+    document.getElementById("swap-value-output").value = 0;
     // Only when wallet is conected - Avoiding conflict in first render
     if (chain) {
       // Setting tokenSymbol for "form-select" render
@@ -152,11 +158,11 @@ export function App() {
       resolve(
         // token0 balance
         _token0C.balanceOf(address).then((res) => {
-          settoken0Amount(Number(ethers.utils.formatEther(res)));
+          setToken0Amount(Number(ethers.utils.formatEther(res)));
         }),
         // token1 balance
         _token1C.balanceOf(address).then((res) => {
-          settoken1Amount(Number(ethers.utils.formatEther(res)));
+          setToken1Amount(Number(ethers.utils.formatEther(res)));
         })
       );
     });
@@ -194,6 +200,7 @@ export function App() {
         web3Provider
       ).then((data) => {
         setTransaction(data[0]);
+        setIsTransaction(false);
         setOutputAmount(data[1]);
         setRatio(data[2]);
         setLoading(false);
@@ -207,6 +214,11 @@ export function App() {
 
       console.log("--Uniswap Router--", error);
     }
+  };
+  // styling verify-Swap buttons
+  const getClassName = () => {
+    if (!isTransaction) return "swapButton button-verify-color";
+    else return "swapButton button-no-verify-color";
   };
 
   // Interface - connectButton + swapContainer + footer
@@ -281,33 +293,34 @@ export function App() {
 
           <div className="swapButtonContainer">
             {verified ? (
-              <div
+              <button
                 onClick={() => runSwap(transaction, signer, web3Provider)}
-                className="swapButton"
+                className="swapButton button-swap-color"
               >
                 Swap
-              </div>
+              </button>
             ) : (
-              <div className="swapButton">--</div>
+              <button
+                disabled={isTransaction}
+                onClick={() => setModalShow(true)}
+                className={getClassName()}
+              >
+                {!isTransaction ? "Verify Transaction" : "--"}
+              </button>
             )}
           </div>
         </div>
-        {/*  */}
-        <Button variant="secondary" onClick={() => setModalShow(true)}>
-          Verify Transaction
-        </Button>
 
         <SwapModal
           show={modalShow}
           onHide={() => setModalShow(false)}
           symbol0={token0Symbol}
           symbol1={token1Symbol}
-          cuantity0={token0Amount}
-          cuantity1={token1Amount}
+          balance0={inputAmount}
+          balance1={outputAmount}
           runSwap={runSwap}
           onVerified={() => setVerified(true)}
         />
-        {/*  */}
         <Footer />
       </div>
     </div>
