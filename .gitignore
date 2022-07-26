@@ -5,6 +5,12 @@ node_modules
 src/components/provisional
 
 .tasks.txt
-data
 cors
 build
+
+
+src/data/getData.js
+src/data/checkingData.js
+src/data/eth
+src/data/polygon
+src/data/ropsten

@@ -11,8 +11,6 @@ const CurrencyField = props => {
 
   const [search, setSearch] = useState("");
   const [contractLoadDelay, setContractLoadDelay] = useState(true);
-  // Second state, cause 1st is not updating
-  // const [contractLoadDelay2, setContractLoadDelay2] = useState(false);
 
   useEffect(() => {
     if (chain) {
@@ -70,12 +68,9 @@ const CurrencyField = props => {
         ) : (
           <input
             className="currencyInputField"
-            // field={props.field}
             id={`swap-value-${props.field}`}
-
             placeholder="0.0"
             defaultValue={props.defaultValue}
-            // onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
             onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
           />
         )}
@@ -121,8 +116,6 @@ const CurrencyField = props => {
                   props.setTokenContract(symbols[0], filteredSymbol)
 
                 }
-                // // Checking if filtered symbol from DATA array is the same as "form.Select's" value
-                // if (filteredSymbol !== e.currentTarget.value) return alert('Filter issue')
               }
             }}
           >

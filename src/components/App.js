@@ -15,7 +15,6 @@ import { getPrice, runSwap } from "./AlphaRouterServiceAdvanced";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Footer from "./Footer/Footer";
 
-// todo: https://wagmi.sh/docs/hooks/useNetwork
 import { useNetwork, useSigner, useProvider, useAccount } from "wagmi";
 import { swapChain, tokenDataInChainX } from "../data/getData";
 import ERC20ABI from "../data/abi.json";
@@ -64,6 +63,7 @@ export function App() {
       setRatio("--");
       setTransaction(undefined);
       setIsTransaction(true);
+      setVerified(false);
       let chainIds = [1, 137, 3];
       let _chainId = parseInt(chain.id);
       for (let i = 0; i < chainIds.length; i++) {
