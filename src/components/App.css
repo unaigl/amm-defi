@@ -14,9 +14,13 @@ body {
 }
 
 /******************************************************************************/
-/* Navbar */
-.appNav {
+/* Header */
+.app-connect {
   margin: 0 16px 0 0;
+}
+
+.app-header-text {
+  margin-top: 20px;
 }
 
 .centerNav {

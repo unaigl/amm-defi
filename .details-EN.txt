@@ -1,0 +1,64 @@
+// Note
+For this simple app we have used CRA with the default webpack configuration. 
+In case you want to implement more functionalities, it is recommended to evaluate more options such as; Svelte - Vue - Angular ; Vite ; Next
+
+// Data -> Data obtained using the web scraping technique in coingecko
+
+// Creation of the main components
+Index -> Web3Tools -> App
+Web3Tools -> We will use as web3 Context provider the Wagmi libraries together with RainbowKit
+App -> We will handle the vast majority of states
+AlphaRouterServiceAdvanced.js -> Functionalities of the "uniswap V3 sdk" that implement the web3 logic that will be executed from App
+CurrencyField -> Logic for data handling and selection
+
+// Secondary components
+Header -> Wallet connection
+Footer -> Info and Disclaimer
+ConfigModal -> Option to configure certain swap parameters
+SwapModal -> For verification of transaction data by the user
+
+// Uniswap V3 Router
+We will use the auto-router - https://docs.uniswap.org/sdk/guides/auto-router
+We will need the following packages: "@uniswap/smart-order-router" , "@uniswap/sdk-core" , "ethers" , "jsbi" and the ERC20 abi
+// Required objects
+1_"provider" 
+2_the "chain id"
+3_create the "signer" object with the user's wallet using ethers
+4_Token
+5_CurrencyAmount, TradeType, Percent
+// Logic
+We create the tokens with the "address", "abi" and "chain".
+Create a "router" object with the "AlphaRouter".
+Create a "transaction" object with the function "router.route(...)".
+Approve uniswap to spend ourtokens.
+Send the "transaction" object with the "signer".
+
+CONCLUSION
+problem 1 ) We have been adding more and more states with dependent "children" of those states.
+solution 1 ) Organize first the flow of all the data needed for the app
+
+problem 2 ) Some of the states are updated at the next rendering, the problem is in the state update of the selected token
+solution 2 ) 
+a) The token selection will be accessed from a "Form.List" where the tokens will have to be selected manually.
+b) By entering a quantity "as input" of the token0 to be exchanged, the status will be updated again. 
+(this guarantees that it will be exchanged between the selected tokens).
+ 
+problem 3 ) The useEffects can only work with internal logic. If variables defined and updated outside the context of the useEffect are used, 
+they must go in the dependencies of useEffect.
+solution 3 ) Instead of the logic being triggered in the App component when a variable changes (((this variable, if it would be inside the dependencies of useEffect,
+but it would handle variables that are NOT in the dependencies. Because this is not possible)))), the logic will fire from the onChange and onBlur events of the child components.
+the child components
+ 
+problem 4 ) ERROR has been blocked by CORS policy: No 'Access-Control-Allow-Origin'.
+solution 4 ) It happens when the website is using the browser cache instead of actually sending a request
+ 
+problem 5 ) Use of "CurrencyField" components twice, with some props being different in each one.
+solution 5 ) Use document.querySelec() or .getElementById() or .getElementsByClassName() to be able to select one of the components.
+ 
+problem 6 ) The token database is the same for both "CurrencyField" components, so you can select the same token in both fields.
+solution 6 ) 
+a) Add logic to return a defaultValue when the same token is selected.
+b) The other options require more resources, since you would have to: 1_ Detect from which "CurrencyField" comes the input 2_ Return the list 3_ Pass a filter
+4_ Send the list to the other "CurrencyField".
+
+Translated with www.DeepL.com/Translator (free version)

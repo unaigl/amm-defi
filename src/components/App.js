@@ -1,54 +1,65 @@
-import "./App.css";
-import { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { useEffect, useState } from "react";
 import { GearFill } from "react-bootstrap-icons";
+import "./App.css";
 
-import ConfigModal from "./swapComponents/ConfigModal";
-import SwapModal from "./swapComponents/SwapModal";
-import Button from "react-bootstrap/Button";
+import ConfigModal from "./bodySwap/ConfigModal";
+import SwapModal from "./bodySwap/SwapModal";
 
-import CurrencyField from "./swapComponents/CurrencyField";
+import CurrencyField from "./bodySwap/CurrencyField";
 
 import BeatLoader from "react-spinners/BeatLoader";
 import { getPrice, runSwap } from "./AlphaRouterServiceAdvanced";
 
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import Footer from "./Footer/Footer";
+import Footer from "./footer/Footer";
+import Header from "./header/Header";
 
-import { useNetwork, useSigner, useProvider, useAccount } from "wagmi";
-import { swapChain, tokenDataInChainX } from "../data/getData";
+import { useAccount, useNetwork, useProvider, useSigner } from "wagmi";
 import ERC20ABI from "../data/abi.json";
+import { swapChain, tokenDataInChainX } from "../data/getData";
 
 export function App() {
-  const [slippageAmount, setSlippageAmount] = useState(2);
-  const [deadlineMinutes, setDeadlineMinutes] = useState(10);
+  /* @dev I recomend to separate this logic in some components, in case you're using this repo to develop more funtionaloties  */
+
+  /* UI state */
   const [showModal, setShowModal] = useState(undefined);
-
-  const [inputAmount, setInputAmount] = useState(undefined);
-  const [outputAmount, setOutputAmount] = useState(undefined);
-  const [transaction, setTransaction] = useState(undefined);
   const [loading, setLoading] = useState(undefined);
-  const [ratio, setRatio] = useState(undefined);
-  const [token0Contract, setToken0Contract] = useState(undefined);
-  const [token1Contract, setToken1Contract] = useState(undefined);
-  const [token0Amount, setToken0Amount] = useState(undefined);
-  const [token1Amount, setToken1Amount] = useState(undefined);
-  const [token0Object, settoken0Object] = useState(undefined);
-  const [token1Object, settoken1Object] = useState(undefined);
-  const [currentSymbolsList, setcurrentSymbolsList] = useState();
-
-  const [token0Symbol, setToken0Symbol] = useState(undefined);
-  const [token1Symbol, setToken1Symbol] = useState(undefined);
-
   const [modalShow, setModalShow] = useState(false);
   const [verified, setVerified] = useState(false);
   const [isTransaction, setIsTransaction] = useState(true);
 
+  /* DEX logic */
+  // To select tokens data depending on selected chain
+  const [currentSymbolsList, setcurrentSymbolsList] = useState();
+  // Selected (and default) token symbol
+  const [token0Symbol, setToken0Symbol] = useState(undefined);
+  const [token1Symbol, setToken1Symbol] = useState(undefined);
+  // Selected tokens user's balances
+  const [token0Balance, setToken0Balance] = useState(undefined);
+  const [token1Balance, setToken1Balance] = useState(undefined);
+  // Filtering and organizing token's data to use in swap logic
+  const [token0Object, settoken0Object] = useState(undefined);
+  const [token1Object, settoken1Object] = useState(undefined);
+  // Is used to approve uniswap v3 swap router
+  const [token0Contract, setToken0Contract] = useState(undefined);
+
+  /* Uniswap v3 Router logic */
+  // Swap config variables
+  const [slippageAmount, setSlippageAmount] = useState(2);
+  const [deadlineMinutes, setDeadlineMinutes] = useState(10);
+  // obtaining the amount of token1, from "getPrice" function
+  const [inputAmount, setInputAmount] = useState(undefined);
+  const [outputAmount, setOutputAmount] = useState(undefined);
+  // Swap object ready to send to chain
+  const [transaction, setTransaction] = useState(undefined);
+  // Swap ratio
+  const [ratio, setRatio] = useState(undefined);
+
   /*  WAGMI hooks*/
   const { chain } = useNetwork();
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: signer } = useSigner(); // Uses ethers internally
   const web3Provider = useProvider();
-  const { address, isDisconnected } = useAccount();
+  const { address } = useAccount(); // user wallet
 
   /*
     Getting tokens symbols DATA in first render 
@@ -57,44 +68,45 @@ export function App() {
   */
 
   useEffect(() => {
+    // if wallet is not connected (chain does not exist), take current token 0 and token1 values - In initial rendering we've setted default tokens
     if (chain) {
-      setToken0Amount(0);
-      setToken1Amount(0);
+      // Reseting values when chain changes
+      setToken0Balance(0);
+      setToken1Balance(0);
       setRatio("--");
       setTransaction(undefined);
       setIsTransaction(true);
       setVerified(false);
+      // Detecting which chain has been selected
       let chainIds = [1, 137, 3];
       let _chainId = parseInt(chain.id);
       for (let i = 0; i < chainIds.length; i++) {
         if (_chainId === chainIds[i]) {
+          // setting tokens from selected chain
           const _tokenSymbols = swapChain(_chainId);
-          // setTokenSymbols(_tokenAddresses);
           setcurrentSymbolsList(_tokenSymbols);
-          // set "Currency-field" input-output values
+          // set "Currency-field" input-output values when chain changes
           const currencyFieldValues = document.querySelectorAll(
             ".currencyInputField"
           );
           currencyFieldValues.forEach((a) => (a.value = 0));
-          // document.querySelector(".spinnerContainer").value = 0;
           // Setting default token for each chain
-          if (_chainId === 3) {
-            setToken0Symbol("DAI");
-            setToken1Symbol("USD");
-          } else {
+          if (_chainId === 1 || _chainId === 137) {
             setToken0Symbol("APE");
             setToken1Symbol("UNI");
+          } else {
+            /* other chains */
           }
         }
       }
     }
   }, [chain]);
 
-  // Reset input values when wallet is disconnected
+  // Reset values when wallet is disconnected
   useEffect(() => {
     if (address) {
-      setToken0Amount(0);
-      setToken1Amount(0);
+      setToken0Balance(0);
+      setToken1Balance(0);
       setRatio("--");
       setTransaction(undefined);
       setIsTransaction(true);
@@ -106,16 +118,12 @@ export function App() {
     updates tokens contracts and user balance when new token is seleceted
   */
 
-  // "gettingTokens" and "getContract" functions are using WAGMI hooks which are instantiated only in App compoenent
-  // In bigger DApps, is better idea to separate in different components
+  // "gettingTokens" and "getContract" functions are using WAGMI hooks which are instantiated only in App component
   const gettingTokens = (_value0, _value1) => {
-    // if wallet is not connected (chain does not exist), take current token 0 and token1 values - In initial rendering we've setted default tokens
-    // const _token0 = tokenDataInChainX(_value0, chain.id);
-    // const _token1 = tokenDataInChainX(_value1, chain.id);
     setVerified(false);
+    // Filtering and organizing token's data to use in swap logic
     const _token0 = tokenDataInChainX(_value0, chain.id);
     const _token1 = tokenDataInChainX(_value1, chain.id);
-    // Set obligado, para poder obtener los datos del token en la funcion getPrice
     settoken0Object(_token0.token);
     settoken1Object(_token1.token);
     return { _token0, _token1 };
@@ -128,24 +136,19 @@ export function App() {
 
   // Setting token contract to get balanceOf when wallet connects
   const setTokenContract = (_value0, _value1) => {
-    // clearing previous swap values
+    // clearing previous swap values of inputs in "CurrencyField" component
     document.getElementById("swap-value-input").value = 0;
     document.getElementById("swap-value-output").value = 0;
-    // Only when wallet is conected - Avoiding conflict in first render
     if (chain) {
-      // Setting tokenSymbol for "form-select" render
+      // Setting tokenSymbol to show in "form-select", in "CurrencyField" component
       setToken0Symbol(_value0);
       setToken1Symbol(_value1);
       const { _token0, _token1 } = gettingTokens(_value0, _value1);
-      // Getting selected token object and setting contracts (to show balance)
-      try {
-        // Creating token contracts
-        const _token0C = getContract(_token0.token.address[0]);
-        const _token1C = getContract(_token1.token.address[0]);
-        getBalanceOf(_token0C, _token1C);
-      } catch (error) {
-        console.log("--token0 and token1 are not defined yet--");
-      }
+      // Getting selected token object and setting contracts (to show balance and approve uniswap)
+      // We don't need token "Contract" object to swap tokens, we'll handle it using "Token" object from "@uniswap/sdk-core"
+      const _token0C = getContract(_token0.token.address[0]);
+      const _token1C = getContract(_token1.token.address[0]);
+      getBalanceOf(_token0C, _token1C);
     }
   };
 
@@ -158,11 +161,11 @@ export function App() {
       resolve(
         // token0 balance
         _token0C.balanceOf(address).then((res) => {
-          setToken0Amount(Number(ethers.utils.formatEther(res)));
+          setToken0Balance(Number(ethers.utils.formatEther(res)));
         }),
         // token1 balance
         _token1C.balanceOf(address).then((res) => {
-          setToken1Amount(Number(ethers.utils.formatEther(res)));
+          setToken1Balance(Number(ethers.utils.formatEther(res)));
         })
       );
     });
@@ -211,7 +214,6 @@ export function App() {
       setRatio("--");
       if (!address) alert("Connect your wallet");
       else alert("Change token selection and try again");
-
       console.log("--Uniswap Router--", error);
     }
   };
@@ -221,23 +223,11 @@ export function App() {
     else return "swapButton button-no-verify-color";
   };
 
-  // Interface - connectButton + swapContainer + footer
+  // Interface - header + swapContainer + footer
   return (
     <div className="App">
-      <div className="appNav">
-        <div className="centertNav">
-          <div className="connectButtonContainer">
-            <ConnectButton id="connect-button" />
-          </div>
-        </div>
-      </div>
-
+      <Header />
       <div className="appBody">
-        <p>Choose a BlockChain to operate using uniswap V3 router </p>
-        <b>Disclaimer: This DEX works as uniswap's does. Be careful!</b>
-        <p>Uniswap will apply the fee for each pool</p>
-        <br />
-        <br />
         <div className="swapContainer">
           <div className="swapHeader">
             <span className="swapText">Swap</span>
@@ -260,7 +250,7 @@ export function App() {
               field={"input"}
               getSwapPrice={getSwapPrice}
               signer={signer}
-              balance={token0Amount}
+              balance={token0Balance}
               symbols={currentSymbolsList}
               setTokenContract={setTokenContract}
               chain={chain}
@@ -271,7 +261,7 @@ export function App() {
               field={"output"}
               defaultValue={outputAmount}
               signer={signer}
-              balance={token1Amount}
+              balance={token1Balance}
               spinner={BeatLoader}
               loading={loading}
               symbols={currentSymbolsList}

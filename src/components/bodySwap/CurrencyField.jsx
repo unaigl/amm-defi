@@ -70,8 +70,8 @@ const CurrencyField = props => {
             className="currencyInputField"
             id={`swap-value-${props.field}`}
             placeholder="0.0"
-            defaultValue={props.defaultValue}
-            onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)}
+            onBlur={e => (props.field === 'input' && e.target.value >= 0.00000001 ? getPrice(e.target.value) : null)} // used in token0 "CurrencyField"
+            defaultValue={props.defaultValue} // used in token1 "CurrencyField"
           />
         )}
       </div>

@@ -1,0 +1,62 @@
+// Nota
+Para esta sencilla app se ha utilizado CRA con la configuracion por defecto de webpack 
+En el caso de querer implementar mas funcionalidades, se recomienda evaluar mas opciones como pueden ser; Svelte - Vue - Angular ; Vite ; Next
+
+// Data                         -> Data obtenida utilizando la tecnica de web scraping en coingecko
+
+// Creacion de los componentes principales
+Index                           -> Web3Tools -> App
+Web3Tools                       -> Uilizaremos como proveedor del Contexto web3 las bibliotecas de Wagmi conjunto con RainbowKit
+App                             -> Se manejaran la gran mayoria de estados
+AlphaRouterServiceAdvanced.js   -> Funcionalidades del "sdk de uniswap V3" que implementan la logica web3 que se ejecutara desde App
+CurrencyField                   -> Logica para el manejo y seleccion de la data
+
+// Componentes secundarios
+Header                          -> Conexion con la wallet
+Footer                          -> Info y Disclaimer
+ConfigModal                     -> Opcion para configurar ciertos parametros para el swap
+SwapModal                       -> Para la verificacion de los datos de la transaccicon de parte del usuario
+
+// Router de Uniswap V3
+Utilizaremos el auto-router - https://docs.uniswap.org/sdk/guides/auto-router
+Necesitaremos los paquetes de: "@uniswap/smart-order-router" , "@uniswap/sdk-core" , "ethers" , "jsbi" y el abi del ERC20
+// Objetos necesarios
+1_"provider" 
+2_la "chain id"
+3_crear el objeto "signer" con la wallet del usuario mediante ethers
+4_Token
+5_CurrencyAmount, TradeType, Percent
+// Logica
+Creamos los tokens con el "address", el "abi" y la "chain"
+Creamos un objeto "router" con el "AlphaRouter"
+Creamos el objeto "transaction" con la funcion "router.route(...)"
+Approvamos a uniswap para que gaste nuestrostokens
+Enviamos el objeto "transaction" con el "signer"
+
+CONCLUSION
+problema 1 ) Haber ido añadiendo mas y mas estados con "hijos" dependientes de esos estado
+solucion 1 ) Organizar primero el flujo de toda la data necesaria para la app
+
+problema 2 ) Algunos de los estados se actualizan al siguiente renderizado, el problema esta en la actualizacion de estado del token seleccionado
+solucion 2 ) 
+a) A la seleccion de los tokens se accedera desde un "Form.List" donde habra que seleccionar manualemente los tokens.
+b) Al meter una cantidad "como input" del token0 que se quiere intercambiar, se vuelve a actualizar el estado 
+(esto nos garantiza que se intercambiara entre los tokens seleccionados)
+ 
+problema 3 ) Los useEffects solo pueden trabajar con logica interna. Si se utilizan variables definidos y actualizados fuera del contexto del useEffect, 
+deben de ir en las dependencias de useEffect
+solucion 3 ) En lugar de que la logica se dispare en el componente App cuando una variable cambie (((esta variable, si estaria dentro de las dependencias del useEffect,
+pero manejaria variables que NO esten en las dependencias. Debido a ello no es posible))), la logica se disparara desde los eventos de onChange y onBlur de
+los componenetes hijos
+ 
+problema 4 ) ERROR has been blocked by CORS policy: No 'Access-Control-Allow-Origin'
+solucion 4 ) It happens when the website is using the browser cache instead of actually sending a request
+ 
+problema 5 ) Utilizando el componente "CurrencyField" dos veces, y cada uno contiene algunos props diferentes
+solucion 5 ) Utilizar document.querySelec() o .getElementById() o .getElementsByClassName() para poder seleccionar uno de los componenetes
+ 
+problema 6 ) La base de datos de los tokens es la misma para los dos componentes "CurrencyField", por lo que se puede seleccionar el mismo token en los dos campos
+solucion 6 ) 
+a) Agregar logica para que devuelva un defaultValue cuando se seleccione el mismo token
+b) Las demás opciones requieren de mas recursos, ya que habria que: 1_ Detectar de que "CurrencyField" viene el input 2_ devolver la lista 3_ pasar un filtro
+4_ Enviar la lista al otro "CurrencyField"
