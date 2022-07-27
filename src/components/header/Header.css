@@ -1,0 +1,14 @@
+/* Header */
+.app-connect {
+  margin: 0 16px 0 0;
+}
+
+.connect-button-container {
+  display: inline-block;
+  margin-top: 30px;
+  margin-right: 10px;
+}
+
+.app-header-text {
+  margin-top: 20px;
+}

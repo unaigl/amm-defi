@@ -18,8 +18,8 @@ function Footer() {
                 <p>Available Mainnet Chains: Ethereum and Polygon </p>
                 <p>You can trade between first 450 tokens (NO coins yet) by market cap </p>
                 <p>Contact me to add more chains, tokens or coins </p>
-                <p>This DApp has been built from scrath <a href='https://github.com/unaigl/amm-defi' > github repo!! </a></p>
-                <p>Data is fetched using web scraping technique.<a href='https://github.com/unaigl/scraping' > here! </a> </p>
+                <p>This DApp has been built from scrath <a href='https://github.com/unaigl/amm-defi' rel="noreferrer" target="_blank"> github repo!! </a></p>
+                <p>Data is fetched using web scraping technique.<a href='https://github.com/unaigl/scraping' rel="noreferrer" target="_blank"> here! </a> </p>
             </Row>
             <Row >
                 <Col md={12} className="footer-center">
@@ -85,7 +85,7 @@ function Footer() {
             <small>3_ Confirm swap</small>
             <br />
             <br />
-            <p>Check DISCLAIMER OF RESPONSIBILITY <a href='https://github.com/unaigl/amm-defi' > here! </a></p>
+            <p>Check DISCLAIMER OF RESPONSIBILITY <a href='https://github.com/unaigl/amm-defi/blob/master/Disclaimer-Warning-EN.txt' rel="noreferrer" target="_blank"> here! </a></p>
             <br />
 
         </Container>

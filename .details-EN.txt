@@ -60,5 +60,3 @@ solution 6 )
 a) Add logic to return a defaultValue when the same token is selected.
 b) The other options require more resources, since you would have to: 1_ Detect from which "CurrencyField" comes the input 2_ Return the list 3_ Pass a filter
 4_ Send the list to the other "CurrencyField".
-
-Translated with www.DeepL.com/Translator (free version)

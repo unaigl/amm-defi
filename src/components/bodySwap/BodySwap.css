@@ -1,0 +1,94 @@
+/******************************************************************************/
+/* Currency Input */
+.currencyInput {
+  background-color: rgb(217, 236, 242);
+  margin: 10px !important;
+  padding: 10px;
+  border-radius: 20px;
+}
+.currencyInput:hover {
+  border-color: #65cdee !important;
+  border: 1px solid;
+}
+::placeholder {
+  opacity: 0.25;
+}
+.numberContainer {
+  text-align: left;
+}
+.spinnerContainer {
+  height: 55px;
+  line-height: 55px;
+}
+.currencyInputField {
+  font-size: 28px;
+  display: inline-block;
+  width: 80%;
+  border: none;
+  background-color: rgb(217, 236, 242);
+}
+.tokenContainer {
+  text-align: right;
+}
+.tokenName {
+  font-size: 28px;
+  display: block;
+  color: #000;
+}
+.balanceContainer {
+  display: block;
+}
+.balanceAmount {
+  width: 100%;
+  font-size: 16px;
+  display: inline;
+  color: #000;
+}
+/******************************************************************************/
+/* Config Modal */
+.modaly {
+  position: fixed;
+  left: 0;
+  top: -510px;
+  right: -110px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(86, 90, 105);
+}
+
+.modal-content {
+  background-color: #fff;
+  width: 300px !important;
+  padding: 0px 15px;
+  background-color: rgb(237, 238, 242) !important;
+  border: 1px solid rgb(206, 208, 217) !important;
+  border-radius: 12px !important;
+}
+
+.modalTitle {
+  margin: auto;
+}
+
+.titleHeader {
+  margin-left: -12px;
+}
+.labelField {
+  padding-left: 0px !important;
+}
+.fieldContainer {
+  padding-left: 0px !important;
+}
+.inputField {
+  padding-left: 10px;
+  border-radius: 36px;
+  border: 1px solid #65cdee;
+  height: 2rem;
+  margin: 10px 0;
+  width: 100%;
+}
+.inputFieldUnitsContainer {
+  padding-left: 0px !important;
+  padding-top: 14px;
+}

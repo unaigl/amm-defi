@@ -1,11 +1,13 @@
 import React from 'react'
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import "./Header.css"
+
 
 const Header = () => {
     return (
         <>
             <div className="app-connect">
-                <div className="connectButtonContainer">
+                <div className="connect-button-container">
                     <ConnectButton id="connect-button" />
                 </div>
             </div>
