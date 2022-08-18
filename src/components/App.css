@@ -23,12 +23,19 @@
 
 .swapContainer {
   background-color: rgb(203, 231, 240);
-  width: 440px;
+  min-width: 300px;
+  max-width: 440px;
   min-height: 350px;
   margin: 0 auto;
   top: 50%;
   border-radius: 24px;
   border: 1px solid #fff;
+}
+
+@media (max-width: 500) {
+  .swapContainer {
+    min-width: 60%;
+  }
 }
 
 .swapHeader {
