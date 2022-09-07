@@ -251,10 +251,10 @@ export function App() {
               getSwapPrice={getSwapPrice}
               signer={signer}
               balance={token0Balance}
+              symbol={token0Symbol}
               symbols={currentSymbolsList}
               setTokenContract={setTokenContract}
               chain={chain}
-              symbol={token0Symbol}
               name="form-select-input"
             />
             <CurrencyField
@@ -264,10 +264,10 @@ export function App() {
               balance={token1Balance}
               spinner={BeatLoader}
               loading={loading}
+              symbol={token1Symbol}
               symbols={currentSymbolsList}
               setTokenContract={setTokenContract}
               chain={chain}
-              symbol={token1Symbol}
               name="form-select-output"
             />
           </div>

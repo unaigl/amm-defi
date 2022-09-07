@@ -14,6 +14,7 @@ const ConfigModal = props => {
           <div className="row">
             <div className="col-md-9 fieldContainer">
               <input
+                role='dialog'
                 className="inputField"
                 placeholder="1.0%"
                 value={props.slippageAmount}
@@ -30,6 +31,7 @@ const ConfigModal = props => {
           <div className="row">
             <div className="col-md-9 fieldContainer">
               <input
+                data-textid='aaa'
                 className="inputField"
                 placeholder="10"
                 value={props.deadlineMinutes}

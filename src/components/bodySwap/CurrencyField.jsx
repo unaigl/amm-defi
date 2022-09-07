@@ -3,6 +3,7 @@ import Form from 'react-bootstrap/Form';
 
 
 import { useNetwork } from "wagmi";
+import InputCurrency from "./currencyManager/InputCurrency"
 
 
 const CurrencyField = props => {
@@ -77,9 +78,9 @@ const CurrencyField = props => {
       </div>
       <div className="col-md-6 tokenContainer">
         <div className="row">
-          <input
+          {/* <input
             type="text"
-            placeholder="Filter by Symbol"
+            placeholder="Filter by Symbol" // TODO: testing
             className="form-control bg-light text-secondary border-0 mt-4 text-center"
             autoFocus
             field={props.field}
@@ -119,10 +120,15 @@ const CurrencyField = props => {
               }
             }}
           >
+          </input> */}
+          <InputCurrency
+            setContractLoadDelay={setContractLoadDelay}
+            contractLoadDelay={contractLoadDelay}
+            setSearch={setSearch}
+            search={search}
+            filteredCoins={filteredCoins}
 
-
-          </input>
-
+          />
         </div>
         <Form.Select
           aria-label="Default select example"
